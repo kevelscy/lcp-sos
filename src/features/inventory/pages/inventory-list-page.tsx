@@ -1,180 +1,143 @@
-import { useState } from 'react'
-import { Package } from 'lucide-react'
-
-import { EmptyState } from '@/shared/components/empty-state'
-import { PageHeader } from '@/shared/components/page-header'
-import { PaginationControls } from '@/shared/components/pagination-controls'
-import { SearchBar } from '@/shared/components/search-bar'
-import { Badge } from '@/shared/components/ui/badge'
-import { Card, CardContent } from '@/shared/components/ui/card'
-import { Input } from '@/shared/components/ui/input'
+import { useOutletContext } from 'react-router-dom'
 import { Skeleton } from '@/shared/components/ui/skeleton'
-import { cn } from '@/shared/lib/utils'
-import { DEFAULT_PAGE_SIZE } from '@/shared/lib/constants'
-import type { PaginationInfo } from '@/shared/lib/types'
 import { useInventory } from '@/features/inventory/hooks'
 
+interface OutletCtx {
+  searchValue: string
+}
+
+function getStockStatus(available: number) {
+  if (available < 0) return { color: '#c8392f', badgeBg: '#fdeceb', badgeColor: '#c8392f', badgeText: 'Negativo' }
+  if (available === 0) return { color: '#8a99a8', badgeBg: '#eef1f4', badgeColor: '#8593a1', badgeText: 'Agotado' }
+  if (available <= 5) return { color: '#c07d1e', badgeBg: '#f8efdc', badgeColor: '#c07d1e', badgeText: 'Stock bajo' }
+  return { color: '#165382', badgeBg: '#e6f5ee', badgeColor: '#2f9e6a', badgeText: 'Disponible' }
+}
+
 export function InventoryListPage() {
-  const [nameSearch, setNameSearch] = useState('')
-  const [barcodeFilter, setBarcodeFilter] = useState('')
-  const { data, totalCount, loading, error, page, setPage } = useInventory({
-    name: nameSearch || undefined,
-    barcode: barcodeFilter || undefined,
-  })
+  const { searchValue } = useOutletContext<OutletCtx>()
+  const { data, totalCount, loading, error } = useInventory({ name: searchValue || undefined })
 
-  const pageSize = DEFAULT_PAGE_SIZE
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
-  const pagination: PaginationInfo = {
-    totalItems: totalCount,
-    totalPages,
-    currentPage: page,
-    pageSize,
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1,
-  }
-
-  const zeroOrNegativeCount = data.filter((e) => e.available <= 0).length
+  const lowStockCount = data.filter((e) => e.available > 0 && e.available <= 5).length
+  const outCount = data.filter((e) => e.available <= 0).length
 
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader title="Inventario" />
-
-      {/* Summary bar — only when data is loaded and not empty */}
-      {!loading && data.length > 0 && (
-        <div className="flex flex-wrap gap-2 rounded-xl border bg-muted/40 px-4 py-2.5 text-sm">
-          <span className="text-foreground">
-            <span className="font-semibold">{totalCount}</span>{' '}
-            <span className="text-muted-foreground">
-              {totalCount === 1 ? 'artículo' : 'artículos'}
-            </span>
-          </span>
-          {zeroOrNegativeCount > 0 && (
-            <>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-amber-600 dark:text-amber-400">
-                <span className="font-semibold">{zeroOrNegativeCount}</span> sin stock o negativo
-              </span>
-            </>
-          )}
+    <div style={{ animation: 'screenIn .32s ease' }}>
+      {/* Stat cards */}
+      {!loading && (
+        <div style={{ display: 'flex', gap: 11, margin: '6px 0 16px' }}>
+          <div style={{ flex: 1, background: '#fff', border: '1.5px solid #e9edf2', borderRadius: 16, padding: '13px 15px' }}>
+            <div style={{ fontSize: 23, fontWeight: 800, color: '#0f2a40', letterSpacing: '-.5px' }}>{totalCount}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#8a99a8', marginTop: 1 }}>Artículos</div>
+          </div>
+          <div style={{ flex: 1, background: '#fff', border: '1.5px solid #f2e0c9', borderRadius: 16, padding: '13px 15px' }}>
+            <div style={{ fontSize: 23, fontWeight: 800, color: '#c07d1e', letterSpacing: '-.5px' }}>{lowStockCount}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#b58a4d', marginTop: 1 }}>Stock bajo</div>
+          </div>
+          <div style={{ flex: 1, background: '#fff', border: '1.5px solid #efd4d1', borderRadius: 16, padding: '13px 15px' }}>
+            <div style={{ fontSize: 23, fontWeight: 800, color: '#c8392f', letterSpacing: '-.5px' }}>{outCount}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#c07971', marginTop: 1 }}>Agotados</div>
+          </div>
         </div>
       )}
 
-      {/* Toolbar */}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex-1">
-          <SearchBar
-            value={nameSearch}
-            onChange={setNameSearch}
-            placeholder="Buscar por nombre de artículo..."
-          />
-        </div>
-        <Input
-          value={barcodeFilter}
-          onChange={(event) => setBarcodeFilter(event.target.value)}
-          placeholder="Filtrar por código de barras"
-          aria-label="Filtrar por código de barras"
-          className="h-11 font-mono sm:max-w-52"
-        />
-      </div>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p style={{ color: '#c8392f', fontSize: 13, fontWeight: 600, textAlign: 'center', marginBottom: 12 }}>{error}</p>
+      )}
 
       {loading ? (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-28 w-full rounded-xl" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-[18px]" />
           ))}
         </div>
       ) : data.length === 0 ? (
-        <EmptyState
-          icon={Package}
-          description="Intentá con otro nombre o código de barras."
-        />
+        <div style={{ textAlign: 'center', padding: '50px 20px', color: '#9aa8b6', fontWeight: 500 }}>
+          Sin resultados
+        </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {data.map((entry) => {
-            const isNegative = entry.available < 0
-            const isOutOfStock = !isNegative && entry.available === 0
-
+            const status = getStockStatus(entry.available)
             return (
-              <Card key={entry.item.id}>
-                <CardContent className="flex flex-col gap-3 py-3">
-                  {/* Header row: item name + stock status badge */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold leading-tight text-foreground">
-                        {entry.item.name}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        {entry.item.barcode && (
-                          <Badge
-                            variant="outline"
-                            className="rounded-md px-1.5 py-0 font-mono text-xs"
-                          >
-                            {entry.item.barcode}
-                          </Badge>
-                        )}
-                        {entry.item.unit && (
-                          <Badge variant="secondary" className="rounded-md px-1.5 py-0 text-xs">
-                            {entry.item.unit}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    {isNegative && (
-                      <Badge variant="destructive" className="shrink-0">
-                        Stock negativo
-                      </Badge>
-                    )}
-                    {isOutOfStock && (
-                      <Badge className="shrink-0 bg-amber-500/15 text-amber-700 dark:text-amber-400">
-                        Sin stock
-                      </Badge>
-                    )}
+              <button
+                key={entry.item.id}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  background: '#fff',
+                  border: '1.5px solid #e9edf2',
+                  borderRadius: 18,
+                  padding: '15px 16px',
+                  marginBottom: 11,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  fontFamily: 'inherit',
+                }}
+                onMouseDown={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = 'scale(.985)'
+                  el.style.borderColor = '#cfdae4'
+                }}
+                onMouseUp={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = ''
+                  el.style.borderColor = '#e9edf2'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.transform = ''
+                  el.style.borderColor = '#e9edf2'
+                }}
+              >
+                {/* Left: name, unit, entry/exit counters */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 15.5, fontWeight: 700, color: '#122433', lineHeight: 1.25, marginBottom: 5 }}>
+                    {entry.item.name}
                   </div>
-
-                  {/* Stats row */}
-                  <div className="flex items-center justify-between gap-2 border-t pt-2.5">
-                    {/* Entries / Exits: secondary */}
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>
-                        Entradas:{' '}
-                        <span className="font-medium text-blue-600 dark:text-blue-400">
-                          {entry.totalEntries}
-                        </span>
-                      </span>
-                      <span>
-                        Salidas:{' '}
-                        <span className="font-medium text-orange-600 dark:text-orange-400">
-                          {entry.totalExits}
-                        </span>
-                      </span>
+                  {entry.item.unit && (
+                    <div style={{ fontSize: 12.5, fontWeight: 500, color: '#8a99a8', marginBottom: 8 }}>
+                      {entry.item.unit}
                     </div>
-
-                    {/* Available: primary — large and bold */}
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground">Disponible</span>
-                      <p
-                        className={cn(
-                          'text-xl font-bold leading-tight tabular-nums',
-                          isNegative && 'text-destructive',
-                          isOutOfStock && 'text-amber-600 dark:text-amber-400',
-                          !isNegative && !isOutOfStock && 'text-foreground'
-                        )}
-                      >
-                        {entry.available}
-                      </p>
-                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 14 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#2f9e6a' }}>↓ {entry.totalEntries}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#d0716a' }}>↑ {entry.totalExits}</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Right: available number + status badge */}
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: -1, lineHeight: 1, color: status.color }}>
+                    {entry.available}
+                  </div>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      marginTop: 9,
+                      padding: '4px 10px',
+                      borderRadius: 9,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: status.badgeBg,
+                      color: status.badgeColor,
+                    }}
+                  >
+                    <span
+                      style={{ width: 6, height: 6, borderRadius: '50%', background: status.badgeColor }}
+                      aria-hidden="true"
+                    />
+                    {status.badgeText}
+                  </div>
+                </div>
+              </button>
             )
           })}
         </div>
       )}
-
-      <PaginationControls pagination={pagination} onPageChange={setPage} />
     </div>
   )
 }

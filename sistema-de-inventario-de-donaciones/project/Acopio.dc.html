@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#e7ebf0}
+  button{font-family:inherit}
+  input,textarea{font-family:inherit}
+  @keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes scanline{0%{top:10%}50%{top:82%}100%{top:10%}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulseDot{0%,100%{opacity:.35}50%{opacity:1}}
+  .scrollarea::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(120% 120% at 50% 0%, #eef2f6 0%, #dde3ea 100%)">
+
+  <!-- PHONE FRAME -->
+  <div style="position:relative;width:390px;height:840px;background:#0c1116;border-radius:46px;padding:11px;box-shadow:0 40px 90px -30px rgba(16,45,74,.55), 0 0 0 1px rgba(0,0,0,.05)">
+    <div style="position:relative;width:100%;height:100%;background:#f5f7fa;border-radius:36px;overflow:hidden;display:flex;flex-direction:column">
+
+      <!-- STATUS BAR -->
+      <div style="flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;background:transparent;z-index:5;position:relative">
+        <span style="font-size:14px;font-weight:700;color:#101d29;letter-spacing:.3px">9:41</span>
+        <div style="position:absolute;left:50%;top:9px;transform:translateX(-50%);width:96px;height:26px;background:#0c1116;border-radius:0 0 16px 16px"></div>
+        <div style="display:flex;align-items:center;gap:6px;color:#101d29">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".35"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.6c2 0 3.9.8 5.3 2.1l1.2-1.3C12.8 1.7 10.5.8 8 .8S3.2 1.7 1.5 3.4l1.2 1.3C4.1 3.4 6 2.6 8 2.6Z"/><path d="M8 6.1c1.1 0 2.1.4 2.8 1.2l1.2-1.3C10.9 4.9 9.5 4.3 8 4.3s-2.9.6-4 1.7l1.2 1.3C5.9 6.5 6.9 6.1 8 6.1Z"/><circle cx="8" cy="10" r="1.7"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" stroke-width="1.2" opacity=".5"/><rect x="2.6" y="2.6" width="16" height="6.8" rx="1.6" fill="currentColor"/><rect x="23.4" y="4" width="1.6" height="4" rx="1" fill="currentColor" opacity=".5"/></svg>
+        </div>
+      </div>
+
+      <!-- ============ LOGIN ============ -->
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 30px 40px;background:linear-gradient(180deg,#f5f7fa 0%,#eaeff4 100%);animation:screenIn .4s ease">
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:40px">
+          <div style="width:78px;height:78px;border-radius:24px;background:linear-gradient(160deg,#1d6299 0%,#165382 60%,#103f66 100%);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5 12 4l8.5 4.5-8.5 4.5z"/><path d="M3.5 8.5v7L12 20l8.5-4.5v-7"/><path d="M12 13v7"/></svg>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:#0f2a40;letter-spacing:-.5px">Acopio</div>
+          <div style="font-size:14.5px;font-weight:500;color:#65788a;margin-top:5px">Inventario de donaciones · Umía</div>
+        </div>
+
+        <label style="font-size:13px;font-weight:600;color:#3a4d5e;margin-bottom:7px;display:block">Correo</label>
+        <input type="email" value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="tucorreo@umiasalud.com" style="width:100%;background:#fff;border:1.5px solid #e2e8ef;border-radius:15px;padding:15px 16px;font-size:15px;font-weight:500;color:#12212e;outline:none;margin-bottom:16px" />
+
+        <label style="font-size:13px;font-weight:600;color:#3a4d5e;margin-bottom:7px;display:block">Contraseña</label>
+        <input type="password" value="{{ loginPass }}" onChange="{{ onLoginPass }}" placeholder="••••••••" style="width:100%;background:#fff;border:1.5px solid #e2e8ef;border-radius:15px;padding:15px 16px;font-size:15px;font-weight:500;color:#12212e;outline:none" />
+
+        <sc-if value="{{ loginError }}" hint-placeholder-val="">
+          <div style="color:#c8392f;font-size:13px;font-weight:600;margin-top:12px;text-align:center">{{ loginError }}</div>
+        </sc-if>
+
+        <button onClick="{{ doLogin }}" style="margin-top:26px;width:100%;background:linear-gradient(180deg,#1d6299,#165382);color:#fff;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px" style-active="transform:scale(.98)">
+          Iniciar sesión
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+        <div style="text-align:center;margin-top:22px;font-size:12.5px;color:#93a2b0;font-weight:500">Acceso exclusivo del personal de acopio</div>
+      </div>
+      </sc-if>
+
+      <!-- ============ APP ============ -->
+      <sc-if value="{{ isApp }}" hint-placeholder-val="">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;position:relative">
+
+        <!-- HEADER -->
+        <div style="flex:0 0 auto;padding:6px 20px 14px;background:#f5f7fa">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <div style="font-size:12.5px;font-weight:600;color:#8a99a8;letter-spacing:.2px">{{ headerKicker }}</div>
+              <div style="font-size:25px;font-weight:800;color:#0f2a40;letter-spacing:-.6px;line-height:1.1">{{ headerTitle }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <sc-if value="{{ showAdd }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onAdd }}" style="width:44px;height:44px;border-radius:14px;background:linear-gradient(180deg,#1d6299,#165382);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer" style-active="transform:scale(.94)">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </sc-if>
+              <button onClick="{{ openMenu }}" style="width:44px;height:44px;border-radius:14px;background:#fff;border:1.5px solid #e6ecf2;display:flex;align-items:center;justify-content:center;cursor:pointer" style-active="transform:scale(.94)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3a4d5e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- SEARCH -->
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e6ecf2;border-radius:15px;padding:0 14px;height:48px">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9aa8b6" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input value="{{ searchValue }}" onChange="{{ onSearch }}" placeholder="{{ searchPlaceholder }}" style="flex:1;border:none;background:transparent;outline:none;font-size:15px;font-weight:500;color:#12212e" />
+            <sc-if value="{{ searchValue }}" hint-placeholder-val="">
+              <button onClick="{{ clearSearch }}" style="border:none;background:#eef2f6;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7a8a98" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- SCROLL CONTENT -->
+        <div class="scrollarea" style="flex:1;overflow-y:auto;padding:4px 20px 96px">
+
+          <!-- INVENTARIO -->
+          <sc-if value="{{ isInventory }}" hint-placeholder-val="{{ true }}">
+          <div style="animation:screenIn .32s ease">
+            <div style="display:flex;gap:11px;margin:6px 0 16px">
+              <div style="flex:1;background:#fff;border:1.5px solid #e9edf2;border-radius:16px;padding:13px 15px">
+                <div style="font-size:23px;font-weight:800;color:#0f2a40;letter-spacing:-.5px">{{ stat_total }}</div>
+                <div style="font-size:12px;font-weight:600;color:#8a99a8;margin-top:1px">Artículos</div>
+              </div>
+              <div style="flex:1;background:#fff;border:1.5px solid #f2e0c9;border-radius:16px;padding:13px 15px">
+                <div style="font-size:23px;font-weight:800;color:#c07d1e;letter-spacing:-.5px">{{ stat_low }}</div>
+                <div style="font-size:12px;font-weight:600;color:#b58a4d;margin-top:1px">Stock bajo</div>
+              </div>
+              <div style="flex:1;background:#fff;border:1.5px solid #efd4d1;border-radius:16px;padding:13px 15px">
+                <div style="font-size:23px;font-weight:800;color:#c8392f;letter-spacing:-.5px">{{ stat_out }}</div>
+                <div style="font-size:12px;font-weight:600;color:#c07971;margin-top:1px">Agotados</div>
+              </div>
+            </div>
+
+            <sc-for list="{{ inventoryRows }}" as="row" hint-placeholder-count="4">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#fff;border:1.5px solid #e9edf2;border-radius:18px;padding:15px 16px;margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:14px" style-active="transform:scale(.985);border-color:#cfdae4">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15.5px;font-weight:700;color:#122433;line-height:1.25;margin-bottom:5px">{{ row.name }}</div>
+                  <div style="font-size:12.5px;font-weight:500;color:#8a99a8;margin-bottom:8px">{{ row.unit }}</div>
+                  <div style="display:flex;gap:14px">
+                    <span style="font-size:12px;font-weight:600;color:#2f9e6a">↓ {{ row.entriesLabel }}</span>
+                    <span style="font-size:12px;font-weight:600;color:#d0716a">↑ {{ row.exitsLabel }}</span>
+                  </div>
+                </div>
+                <div style="text-align:right;flex:0 0 auto">
+                  <div style="font-size:27px;font-weight:800;letter-spacing:-1px;line-height:1;color:{{ row.numColor }}">{{ row.available }}</div>
+                  <div style="display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 10px;border-radius:9px;font-size:11px;font-weight:700;background:{{ row.badgeBg }};color:{{ row.badgeColor }}">
+                    <span style="width:6px;height:6px;border-radius:50%;background:{{ row.badgeColor }}"></span>{{ row.badgeText }}
+                  </div>
+                </div>
+              </button>
+            </sc-for>
+            <sc-if value="{{ inventoryEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:50px 20px;color:#9aa8b6;font-weight:500">Sin resultados</div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- ENTRADAS -->
+          <sc-if value="{{ isEntries }}" hint-placeholder-val="">
+          <div style="animation:screenIn .32s ease">
+            <sc-for list="{{ entryRows }}" as="row" hint-placeholder-count="4">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#fff;border:1.5px solid #e9edf2;border-radius:18px;padding:15px 16px;margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:13px" style-active="transform:scale(.985);border-color:#cfdae4">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:13px;background:#e6f5ee;display:flex;align-items:center;justify-content:center">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2f9e6a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;color:#122433;line-height:1.25;margin-bottom:3px">{{ row.itemName }}</div>
+                  <div style="font-size:12.5px;font-weight:500;color:#8a99a8">{{ row.personName }} · {{ row.date }}</div>
+                </div>
+                <div style="text-align:right;flex:0 0 auto">
+                  <div style="font-size:16px;font-weight:800;color:#2f9e6a;letter-spacing:-.3px">+{{ row.qty }}</div>
+                  <div style="font-size:11.5px;font-weight:600;color:#a7b3bf;margin-top:2px">{{ row.unitShort }}</div>
+                </div>
+              </button>
+            </sc-for>
+            <sc-if value="{{ entriesEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:44px 20px;color:#9aa8b6;font-weight:500">Aún no hay entradas registradas</div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- SALIDAS -->
+          <sc-if value="{{ isExits }}" hint-placeholder-val="">
+          <div style="animation:screenIn .32s ease">
+            <sc-for list="{{ exitRows }}" as="row" hint-placeholder-count="4">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#fff;border:1.5px solid #e9edf2;border-radius:18px;padding:15px 16px;margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:13px" style-active="transform:scale(.985);border-color:#cfdae4">
+                <div style="flex:0 0 auto;width:44px;height:44px;border-radius:13px;background:#fdeceb;display:flex;align-items:center;justify-content:center">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#d0574d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V9"/><path d="m7 13 5-5 5 5"/><path d="M5 4h14"/></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;color:#122433;line-height:1.25;margin-bottom:3px">{{ row.itemName }}</div>
+                  <div style="font-size:12.5px;font-weight:500;color:#8a99a8">{{ row.personName }} · {{ row.date }}</div>
+                </div>
+                <div style="text-align:right;flex:0 0 auto">
+                  <div style="font-size:16px;font-weight:800;color:#d0574d;letter-spacing:-.3px">−{{ row.qty }}</div>
+                  <div style="font-size:11.5px;font-weight:600;color:#a7b3bf;margin-top:2px">{{ row.unitShort }}</div>
+                </div>
+              </button>
+            </sc-for>
+            <sc-if value="{{ exitsEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:44px 20px;color:#9aa8b6;font-weight:500">Aún no hay salidas registradas</div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- PERSONAS -->
+          <sc-if value="{{ isPersons }}" hint-placeholder-val="">
+          <div style="animation:screenIn .32s ease">
+            <sc-for list="{{ personRows }}" as="row" hint-placeholder-count="5">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#fff;border:1.5px solid #e9edf2;border-radius:18px;padding:13px 15px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:13px" style-active="transform:scale(.985);border-color:#cfdae4">
+                <div style="flex:0 0 auto;width:46px;height:46px;border-radius:15px;background:{{ row.avatarBg }};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:{{ row.avatarColor }}">{{ row.initials }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15.5px;font-weight:700;color:#122433;line-height:1.25;margin-bottom:3px">{{ row.fullName }}</div>
+                  <div style="font-size:12.5px;font-weight:500;color:#8a99a8">{{ row.meta }}</div>
+                </div>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c3ccd6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </button>
+            </sc-for>
+            <sc-if value="{{ personsEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:44px 20px;color:#9aa8b6;font-weight:500">Sin resultados</div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <!-- ARTICULOS -->
+          <sc-if value="{{ isItems }}" hint-placeholder-val="">
+          <div style="animation:screenIn .32s ease">
+            <sc-for list="{{ itemRows }}" as="row" hint-placeholder-count="5">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#fff;border:1.5px solid #e9edf2;border-radius:18px;padding:14px 15px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:13px" style-active="transform:scale(.985);border-color:#cfdae4">
+                <div style="flex:0 0 auto;width:46px;height:46px;border-radius:14px;background:#eaf1f7;display:flex;align-items:center;justify-content:center">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2c6ea0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:700;color:#122433;line-height:1.25;margin-bottom:4px">{{ row.name }}</div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font-size:11.5px;font-weight:600;color:#5c7186;background:#eef2f6;padding:2px 9px;border-radius:7px">{{ row.unit }}</span>
+                    <span style="font-size:12px;font-weight:500;color:#a7b3bf;font-family:ui-monospace,monospace">{{ row.barcode }}</span>
+                  </div>
+                </div>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c3ccd6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </button>
+            </sc-for>
+            <sc-if value="{{ itemsEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:44px 20px;color:#9aa8b6;font-weight:500">Sin resultados</div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+        </div>
+
+        <!-- BOTTOM TAB BAR -->
+        <div style="flex:0 0 auto;position:absolute;bottom:0;left:0;right:0;height:80px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-top:1px solid #e6ecf2;display:flex;padding:8px 8px 20px;z-index:6">
+          <button onClick="{{ goInventory }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:{{ c_inv }}">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5 12 4l8.5 4.5-8.5 4.5z"/><path d="M3.5 8.5v7L12 20l8.5-4.5v-7"/></svg>
+            <span style="font-size:10.5px;font-weight:700">Inventario</span>
+          </button>
+          <button onClick="{{ goEntries }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:{{ c_ent }}">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+            <span style="font-size:10.5px;font-weight:700">Entradas</span>
+          </button>
+          <button onClick="{{ goExits }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:{{ c_exi }}">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V9"/><path d="m7 13 5-5 5 5"/><path d="M5 4h14"/></svg>
+            <span style="font-size:10.5px;font-weight:700">Salidas</span>
+          </button>
+          <button onClick="{{ goItems }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:{{ c_art }}">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>
+            <span style="font-size:10.5px;font-weight:700">Artículos</span>
+          </button>
+          <button onClick="{{ goPersons }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:{{ c_per }}">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19a6.5 6.5 0 0 1 13 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.9"/><path d="M18 19a6.5 6.5 0 0 0-3-5.5"/></svg>
+            <span style="font-size:10.5px;font-weight:700">Personas</span>
+          </button>
+        </div>
+
+      </div>
+      </sc-if>
+
+      <!-- ============ BACKDROP + DRAWER ============ -->
+      <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;background:rgba(12,26,40,.42);z-index:20;transition:opacity .3s ease;opacity:{{ backdropOpacity }};pointer-events:{{ drawerPointer }}"></div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;z-index:21;background:#fff;border-radius:26px 26px 0 0;transform:translateY({{ drawerTranslate }});transition:transform .34s cubic-bezier(.32,.72,0,1);max-height:90%;display:flex;flex-direction:column;overflow:hidden">
+        <div style="flex:0 0 auto;display:flex;justify-content:center;padding:11px 0 4px"><div style="width:40px;height:5px;border-radius:3px;background:#dbe2e9"></div></div>
+
+        <!-- MENU (inicio/cerrar sesión) -->
+        <sc-if value="{{ dMenu }}" hint-placeholder-val="">
+        <div style="padding:8px 22px 30px">
+          <div style="font-size:19px;font-weight:800;color:#0f2a40;margin:6px 2px 16px">Cuenta</div>
+          <button onClick="{{ goInventoryFromMenu }}" style="width:100%;display:flex;align-items:center;gap:13px;background:#f5f7fa;border:1.5px solid #eef2f6;border-radius:15px;padding:15px 16px;margin-bottom:11px;cursor:pointer;text-align:left" style-active="transform:scale(.99)">
+            <div style="width:40px;height:40px;border-radius:12px;background:#eaf1f7;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c6ea0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21v-7h6v7"/></svg></div>
+            <span style="font-size:15px;font-weight:700;color:#122433">Ir al inicio</span>
+          </button>
+          <button onClick="{{ logout }}" style="width:100%;display:flex;align-items:center;gap:13px;background:#fdeceb;border:1.5px solid #f6dcda;border-radius:15px;padding:15px 16px;cursor:pointer;text-align:left" style-active="transform:scale(.99)">
+            <div style="width:40px;height:40px;border-radius:12px;background:#fadfdc;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d0574d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></div>
+            <span style="font-size:15px;font-weight:700;color:#c8392f">Cerrar sesión</span>
+          </button>
+        </div>
+        </sc-if>
+
+        <!-- DETAIL -->
+        <sc-if value="{{ dDetail }}" hint-placeholder-val="">
+        <div class="scrollarea" style="overflow-y:auto;padding:6px 22px 30px">
+          <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px">
+            <div style="flex:0 0 auto;width:52px;height:52px;border-radius:16px;background:{{ detail_iconBg }};display:flex;align-items:center;justify-content:center;font-weight:800;color:{{ detail_iconColor }};font-size:16px">{{ detail_iconText }}</div>
+            <div style="flex:1;min-width:0;padding-top:2px">
+              <div style="font-size:20px;font-weight:800;color:#0f2a40;letter-spacing:-.4px;line-height:1.2">{{ detail_title }}</div>
+              <div style="font-size:13.5px;font-weight:600;color:#8a99a8;margin-top:3px">{{ detail_subtitle }}</div>
+            </div>
+          </div>
+
+          <sc-if value="{{ detail_hasStock }}" hint-placeholder-val="">
+          <div style="display:flex;gap:10px;margin-bottom:18px">
+            <div style="flex:1;background:#e6f5ee;border-radius:14px;padding:13px 14px;text-align:center"><div style="font-size:20px;font-weight:800;color:#2f9e6a">{{ detail_entries }}</div><div style="font-size:11.5px;font-weight:600;color:#5aa886;margin-top:2px">Entradas</div></div>
+            <div style="flex:1;background:#fdeceb;border-radius:14px;padding:13px 14px;text-align:center"><div style="font-size:20px;font-weight:800;color:#d0574d">{{ detail_exits }}</div><div style="font-size:11.5px;font-weight:600;color:#c0817b;margin-top:2px">Salidas</div></div>
+            <div style="flex:1;background:#eaf1f7;border-radius:14px;padding:13px 14px;text-align:center"><div style="font-size:20px;font-weight:800;color:#165382">{{ detail_available }}</div><div style="font-size:11.5px;font-weight:600;color:#5c7fa0;margin-top:2px">Disponible</div></div>
+          </div>
+          </sc-if>
+
+          <sc-for list="{{ detailFields }}" as="f" hint-placeholder-count="3">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:13px 0;border-bottom:1px solid #f0f3f6">
+              <span style="font-size:13.5px;font-weight:600;color:#8a99a8;flex:0 0 auto">{{ f.label }}</span>
+              <span style="font-size:14.5px;font-weight:600;color:#243444;text-align:right">{{ f.value }}</span>
+            </div>
+          </sc-for>
+
+          <div style="display:flex;gap:11px;margin-top:22px">
+            <sc-if value="{{ detail_canEdit }}" hint-placeholder-val="">
+            <button onClick="{{ detailEdit }}" style="flex:1;background:#eaf1f7;color:#165382;border:none;border-radius:14px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" style-active="transform:scale(.98)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#165382" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Editar
+            </button>
+            </sc-if>
+            <button onClick="{{ detailArchive }}" style="flex:1;background:#fdeceb;color:#c8392f;border:none;border-radius:14px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" style-active="transform:scale(.98)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c8392f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg>Archivar
+            </button>
+          </div>
+
+          <sc-if value="{{ detail_isInventory }}" hint-placeholder-val="">
+          <div style="display:flex;gap:11px;margin-top:11px">
+            <button onClick="{{ detailAddEntry }}" style="flex:1;background:#e6f5ee;color:#2f9e6a;border:none;border-radius:14px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer" style-active="transform:scale(.98)">+ Entrada</button>
+            <button onClick="{{ detailAddExit }}" style="flex:1;background:#fdeceb;color:#d0574d;border:none;border-radius:14px;padding:15px;font-size:14.5px;font-weight:700;cursor:pointer" style-active="transform:scale(.98)">− Salida</button>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ENTRY / EXIT FORM -->
+        <sc-if value="{{ dMovForm }}" hint-placeholder-val="">
+        <div class="scrollarea" style="overflow-y:auto;padding:6px 22px 30px">
+          <div style="font-size:20px;font-weight:800;color:#0f2a40;letter-spacing:-.4px;margin:2px 0 20px">{{ mov_title }}</div>
+
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Artículo</label>
+          <button onClick="{{ mov_pickItem }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;cursor:pointer;text-align:left;margin-bottom:16px" style-active="transform:scale(.99)">
+            <span style="font-size:15px;font-weight:600;color:{{ mov_itemColor }}">{{ mov_itemLabel }}</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa8b6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            <div style="flex:1.4">
+              <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Cantidad</label>
+              <input type="number" inputmode="decimal" value="{{ mov_qty }}" onChange="{{ onMovQty }}" placeholder="0" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:16px;font-weight:700;color:#12212e;outline:none" />
+            </div>
+            <div style="flex:1">
+              <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Unidad</label>
+              <div style="background:#eef2f6;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 14px;font-size:13.5px;font-weight:600;color:#5c7186;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mov_unit }}</div>
+            </div>
+          </div>
+
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">{{ mov_personLabel }} <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <button onClick="{{ mov_pickPerson }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;cursor:pointer;text-align:left;margin-bottom:16px" style-active="transform:scale(.99)">
+            <span style="font-size:15px;font-weight:600;color:{{ mov_personColor }}">{{ mov_personVal }}</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa8b6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Notas <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <textarea value="{{ mov_notes }}" onChange="{{ onMovNotes }}" placeholder="Observaciones…" rows="2" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:14px 16px;font-size:15px;font-weight:500;color:#12212e;outline:none;resize:none;line-height:1.4"></textarea>
+
+          <sc-if value="{{ formError }}" hint-placeholder-val="">
+            <div style="color:#c8392f;font-size:13px;font-weight:600;margin-top:14px;text-align:center;background:#fdeceb;padding:11px;border-radius:12px">{{ formError }}</div>
+          </sc-if>
+
+          <button onClick="{{ mov_submit }}" style="margin-top:20px;width:100%;background:linear-gradient(180deg,#1d6299,#165382);color:#fff;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer" style-active="transform:scale(.98)">{{ mov_cta }}</button>
+        </div>
+        </sc-if>
+
+        <!-- PERSON FORM -->
+        <sc-if value="{{ dPersonForm }}" hint-placeholder-val="">
+        <div class="scrollarea" style="overflow-y:auto;padding:6px 22px 30px">
+          <div style="font-size:20px;font-weight:800;color:#0f2a40;letter-spacing:-.4px;margin:2px 0 20px">{{ person_title }}</div>
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            <div style="flex:1"><label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Nombres</label><input value="{{ pf_names }}" onChange="{{ onPfNames }}" placeholder="María" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none" /></div>
+            <div style="flex:1"><label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Apellidos</label><input value="{{ pf_surnames }}" onChange="{{ onPfSurnames }}" placeholder="González" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none" /></div>
+          </div>
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Cédula / DNI <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <input value="{{ pf_dni }}" onChange="{{ onPfDni }}" placeholder="V12345678" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none;margin-bottom:16px" />
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Teléfono <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <input inputmode="numeric" value="{{ pf_phone }}" onChange="{{ onPfPhone }}" placeholder="04141234567" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none;margin-bottom:16px" />
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Dirección <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <input value="{{ pf_address }}" onChange="{{ onPfAddress }}" placeholder="Av. Principal, Caracas" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none;margin-bottom:16px" />
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Notas <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <textarea value="{{ pf_notes }}" onChange="{{ onPfNotes }}" placeholder="Observaciones…" rows="2" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:14px 16px;font-size:15px;font-weight:500;color:#12212e;outline:none;resize:none;line-height:1.4"></textarea>
+          <sc-if value="{{ formError }}" hint-placeholder-val="">
+            <div style="color:#c8392f;font-size:13px;font-weight:600;margin-top:14px;text-align:center;background:#fdeceb;padding:11px;border-radius:12px">{{ formError }}</div>
+          </sc-if>
+          <button onClick="{{ person_submit }}" style="margin-top:20px;width:100%;background:linear-gradient(180deg,#1d6299,#165382);color:#fff;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer" style-active="transform:scale(.98)">{{ person_cta }}</button>
+        </div>
+        </sc-if>
+
+        <!-- ITEM FORM -->
+        <sc-if value="{{ dItemForm }}" hint-placeholder-val="">
+        <div class="scrollarea" style="overflow-y:auto;padding:6px 22px 30px">
+          <div style="font-size:20px;font-weight:800;color:#0f2a40;letter-spacing:-.4px;margin:2px 0 20px">{{ item_title }}</div>
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Nombre del artículo</label>
+          <input value="{{ af_name }}" onChange="{{ onAfName }}" placeholder="Harina de Maíz Precocida (1kg)" style="width:100%;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none;margin-bottom:16px" />
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Código de barras <span style="color:#a7b3bf;font-weight:500">· opcional</span></label>
+          <div style="display:flex;gap:10px;margin-bottom:16px">
+            <input value="{{ af_barcode }}" onChange="{{ onAfBarcode }}" placeholder="7591016000010" style="flex:1;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:15px 16px;font-size:15px;font-weight:600;color:#12212e;outline:none;font-family:ui-monospace,monospace" />
+            <button onClick="{{ scanBarcode }}" style="flex:0 0 auto;width:54px;background:linear-gradient(180deg,#1d6299,#165382);border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-active="transform:scale(.95)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></svg>
+            </button>
+          </div>
+          <label style="font-size:13px;font-weight:700;color:#3a4d5e;margin-bottom:8px;display:block">Unidad de medida</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ unitChips }}" as="u" hint-placeholder-count="5">
+              <button onClick="{{ u.onClick }}" style="border:1.5px solid {{ u.border }};background:{{ u.bg }};color:{{ u.color }};border-radius:12px;padding:11px 15px;font-size:13.5px;font-weight:700;cursor:pointer" style-active="transform:scale(.96)">{{ u.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ formError }}" hint-placeholder-val="">
+            <div style="color:#c8392f;font-size:13px;font-weight:600;margin-top:16px;text-align:center;background:#fdeceb;padding:11px;border-radius:12px">{{ formError }}</div>
+          </sc-if>
+          <button onClick="{{ item_submit }}" style="margin-top:22px;width:100%;background:linear-gradient(180deg,#1d6299,#165382);color:#fff;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer" style-active="transform:scale(.98)">{{ item_cta }}</button>
+        </div>
+        </sc-if>
+
+        <!-- SELECTOR (buscar artículo / persona) -->
+        <sc-if value="{{ dSelector }}" hint-placeholder-val="">
+        <div style="display:flex;flex-direction:column;min-height:0;max-height:100%">
+          <div style="flex:0 0 auto;padding:2px 22px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <button onClick="{{ selectorBack }}" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:#165382;font-size:14.5px;font-weight:700;padding:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#165382" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Atrás</button>
+              <div style="font-size:16px;font-weight:800;color:#0f2a40">{{ selector_title }}</div>
+              <div style="width:52px"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#f5f7fa;border:1.5px solid #e6ebf1;border-radius:14px;padding:0 14px;height:48px">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa8b6" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input value="{{ selSearch }}" onChange="{{ onSelSearch }}" placeholder="{{ selector_placeholder }}" style="flex:1;border:none;background:transparent;outline:none;font-size:15px;font-weight:500;color:#12212e" />
+            </div>
+            <sc-if value="{{ selector_showScan }}" hint-placeholder-val="">
+              <button onClick="{{ scanSelect }}" style="margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:#eaf1f7;border:1.5px dashed #b9cee0;border-radius:14px;padding:13px;cursor:pointer;color:#165382;font-size:14px;font-weight:700" style-active="transform:scale(.99)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#165382" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></svg>Escanear código de barras
+              </button>
+            </sc-if>
+          </div>
+          <div class="scrollarea" style="flex:1;overflow-y:auto;padding:2px 22px 30px">
+            <sc-for list="{{ selectorRows }}" as="row" hint-placeholder-count="5">
+              <button onClick="{{ row.onClick }}" style="width:100%;text-align:left;background:#f5f7fa;border:1.5px solid #eef2f6;border-radius:14px;padding:13px 15px;margin-bottom:9px;cursor:pointer;display:flex;align-items:center;gap:12px" style-active="transform:scale(.99);border-color:#cfdae4">
+                <div style="flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:{{ row.iconBg }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:{{ row.iconColor }}">{{ row.icon }}</div>
+                <div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:700;color:#122433">{{ row.title }}</div><div style="font-size:12.5px;font-weight:500;color:#8a99a8;margin-top:1px">{{ row.sub }}</div></div>
+              </button>
+            </sc-for>
+            <sc-if value="{{ selectorEmpty }}" hint-placeholder-val="">
+              <div style="text-align:center;padding:36px 20px;color:#9aa8b6;font-weight:500">Sin resultados</div>
+            </sc-if>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- SCAN -->
+        <sc-if value="{{ dScan }}" hint-placeholder-val="">
+        <div style="padding:6px 22px 34px">
+          <div style="font-size:20px;font-weight:800;color:#0f2a40;text-align:center;margin:2px 0 4px">Escaneando…</div>
+          <div style="font-size:13.5px;font-weight:500;color:#8a99a8;text-align:center;margin-bottom:22px">Apunta la cámara al código de barras</div>
+          <div style="position:relative;width:100%;height:220px;border-radius:22px;background:linear-gradient(160deg,#12212e,#1c3140);overflow:hidden">
+            <div style="position:absolute;left:8%;right:8%;top:10%;bottom:10%;border:2px solid rgba(255,255,255,.25);border-radius:16px"></div>
+            <div style="position:absolute;left:8%;right:8%;height:2.5px;background:linear-gradient(90deg,transparent,#4fd39a,transparent);box-shadow:0 0 14px #4fd39a;animation:scanline 1.7s ease-in-out infinite"></div>
+            <div style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#4fd39a;animation:pulseDot 1s infinite"></span>
+              <span style="width:8px;height:8px;border-radius:50%;background:#4fd39a;animation:pulseDot 1s infinite .2s"></span>
+              <span style="width:8px;height:8px;border-radius:50%;background:#4fd39a;animation:pulseDot 1s infinite .4s"></span>
+            </div>
+          </div>
+          <button onClick="{{ closeDrawer }}" style="margin-top:20px;width:100%;background:#eef2f6;color:#3a4d5e;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer">Cancelar</button>
+        </div>
+        </sc-if>
+
+      </div>
+
+      <!-- TOAST -->
+      <sc-if value="{{ toast }}" hint-placeholder-val="">
+        <div style="position:absolute;left:50%;bottom:100px;transform:translateX(-50%);z-index:40;background:#0f2a40;color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:9px;white-space:nowrap;animation:screenIn .28s ease">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4fd39a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>{{ toast }}
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:440,&quot;height&quot;:890}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    tab: 'inventory',
+    loginEmail: '', loginPass: '', loginError: '',
+    drawer: null, drawerOpen: false,
+    detailType: null, detailId: null,
+    editId: null, movKind: 'entry', returnDrawer: null, selectorMode: null,
+    searchInv: '', searchEnt: '', searchExi: '', searchPer: '', searchArt: '',
+    selSearch: '',
+    ef: { itemId: null, quantity: '', donorId: null, notes: '' },
+    xf: { itemId: null, quantity: '', recipientId: null, notes: '' },
+    pf: { names: '', surnames: '', dni: '', phone: '', address: '', notes: '' },
+    af: { name: '', barcode: '', unit: 'Unidades' },
+    formError: '', scanTarget: null, toast: null,
+    seq: 200,
+    items: [
+      { id: 1, name: 'Harina de Maíz Precocida (1kg)', barcode: '7591016000010', unit: 'Kilogramos (kg)' },
+      { id: 2, name: 'Arroz Blanco (1kg)', barcode: '7591016000027', unit: 'Kilogramos (kg)' },
+      { id: 3, name: 'Papel Higiénico (4 rollos)', barcode: '7591016000034', unit: 'Unidades' },
+      { id: 4, name: 'Acetaminofén 500mg', barcode: '7591016000041', unit: 'Cajas' },
+      { id: 5, name: 'Aceite Vegetal (1L)', barcode: '7591016000058', unit: 'Litros' },
+      { id: 6, name: 'Pasta Larga (1kg)', barcode: '7591016000065', unit: 'Kilogramos (kg)' },
+    ],
+    persons: [
+      { id: 1, names: 'María', surnames: 'González', dni: 'V12345678', phone: '4141234567', address: 'Av. Principal, Caracas', notes: '' },
+      { id: 2, names: 'Carlos', surnames: 'Pérez', dni: 'V87654321', phone: '4241234567', address: '', notes: '' },
+      { id: 3, names: 'Juan', surnames: 'Rodríguez', dni: 'V19283746', phone: '4161112233', address: 'Petare, Caracas', notes: '' },
+      { id: 4, names: 'Ana', surnames: 'Martínez', dni: 'V22334455', phone: '4142223344', address: '', notes: 'Familia de 5 personas' },
+      { id: 5, names: 'Farmacia San Rafael', surnames: '(Donante)', dni: 'J310025478', phone: '4262223344', address: 'C.C. Sambil', notes: 'Donante recurrente' },
+    ],
+    entries: [
+      { id: 101, itemId: 1, donorId: 1, quantity: 50, notes: 'Donación recibida en la puerta', createdAt: '2026-06-28T09:30:00Z' },
+      { id: 102, itemId: 2, donorId: 5, quantity: 30, notes: '', createdAt: '2026-06-29T11:15:00Z' },
+      { id: 103, itemId: 3, donorId: 2, quantity: 24, notes: '', createdAt: '2026-06-29T14:40:00Z' },
+      { id: 104, itemId: 4, donorId: 5, quantity: 12, notes: 'Lote de medicamentos', createdAt: '2026-06-30T08:05:00Z' },
+      { id: 105, itemId: 5, donorId: null, quantity: 20, notes: '', createdAt: '2026-06-30T10:20:00Z' },
+      { id: 106, itemId: 1, donorId: 4, quantity: 15, notes: '', createdAt: '2026-06-30T12:00:00Z' },
+    ],
+    exits: [
+      { id: 151, itemId: 1, recipientId: 3, quantity: 30, notes: '', createdAt: '2026-06-30T13:10:00Z' },
+      { id: 152, itemId: 3, recipientId: 3, quantity: 20, notes: '', createdAt: '2026-06-30T13:20:00Z' },
+      { id: 153, itemId: 4, recipientId: 4, quantity: 10, notes: '', createdAt: '2026-06-30T15:00:00Z' },
+      { id: 154, itemId: 2, recipientId: 4, quantity: 28, notes: '', createdAt: '2026-06-30T15:30:00Z' },
+      { id: 155, itemId: 6, recipientId: 4, quantity: 5, notes: 'Descuadre de registro', createdAt: '2026-06-30T16:00:00Z' },
+    ],
+  };
+
+  UNITS = ['Kilogramos (kg)', 'Unidades', 'Litros', 'Cajas', 'Blísters'];
+
+  // ---------- helpers ----------
+  fmtDate(iso) {
+    const d = new Date(iso);
+    const m = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${d.getDate()} ${m[d.getMonth()]}`;
+  }
+  fmtDateTime(iso) {
+    const d = new Date(iso);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${this.fmtDate(iso)} · ${hh}:${mm}`;
+  }
+  unitShort(u) {
+    return ({ 'Kilogramos (kg)': 'kg', 'Unidades': 'u', 'Litros': 'L', 'Cajas': 'cajas', 'Blísters': 'blísters' })[u] || '';
+  }
+  fmtNum(n) {
+    return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
+  }
+  itemById(id) { return this.state.items.find(i => i.id === id); }
+  perById(id) { return this.state.persons.find(p => p.id === id); }
+  initials(p) { return ((p.names[0] || '') + (p.surnames[0] || '')).toUpperCase(); }
+  avatarPalette(id) {
+    const p = [['#eaf1f7', '#2c6ea0'], ['#e9f3ec', '#2f9e6a'], ['#f5edda', '#b5851f'], ['#f3e9f0', '#9a4d84'], ['#eae9f5', '#5a52a0']];
+    return p[id % p.length];
+  }
+
+  stock(itemId) {
+    const te = this.state.entries.filter(e => e.itemId === itemId).reduce((s, e) => s + e.quantity, 0);
+    const tx = this.state.exits.filter(e => e.itemId === itemId).reduce((s, e) => s + e.quantity, 0);
+    return { te, tx, av: te - tx };
+  }
+  badge(av) {
+    if (av < 0) return { text: 'Negativo', bg: '#fdeceb', color: '#c8392f', num: '#c8392f' };
+    if (av === 0) return { text: 'Agotado', bg: '#eef1f4', color: '#8593a1', num: '#8593a1' };
+    if (av <= 5) return { text: 'Stock bajo', bg: '#f8efdc', color: '#c07d1e', num: '#c07d1e' };
+    return { text: 'Disponible', bg: '#e6f5ee', color: '#2f9e6a', num: '#1f8a5b' };
+  }
+
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+  openDrawer(name) { this.setState({ drawer: name, drawerOpen: true, formError: '' }); }
+  closeDrawer = () => {
+    this.setState({ drawerOpen: false });
+    clearTimeout(this._c);
+    this._c = setTimeout(() => this.setState({ drawer: null, selectorMode: null }), 340);
+  };
+
+  // ---------- render ----------
+  renderVals() {
+    const S = this.state;
+    const set = (o) => this.setState(o);
+
+    const activeColor = (t) => S.tab === t ? '#165382' : '#9aabb8';
+
+    // ---- inventory rows ----
+    let inv = S.items.map(it => {
+      const { te, tx, av } = this.stock(it.id);
+      const b = this.badge(av);
+      return {
+        id: it.id, name: it.name, unit: it.unit,
+        available: this.fmtNum(av), entriesLabel: this.fmtNum(te), exitsLabel: this.fmtNum(tx),
+        numColor: b.num, badgeBg: b.bg, badgeColor: b.color, badgeText: b.text,
+        _av: av,
+        onClick: () => this.openDetail('inventory', it.id),
+      };
+    });
+    const q1 = S.searchInv.trim().toLowerCase();
+    if (q1) inv = inv.filter(r => r.name.toLowerCase().includes(q1));
+    const lowCount = S.items.filter(it => { const a = this.stock(it.id).av; return a > 0 && a <= 5; }).length;
+    const outCount = S.items.filter(it => this.stock(it.id).av <= 0).length;
+
+    // ---- entry rows ----
+    let entriesData = S.entries.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(e => {
+      const it = this.itemById(e.itemId); const d = e.donorId ? this.perById(e.donorId) : null;
+      return {
+        id: e.id, itemName: it ? it.name : '—', personName: d ? `${d.names} ${d.surnames}` : 'Sin donante',
+        qty: this.fmtNum(e.quantity), unitShort: it ? this.unitShort(it.unit) : '', date: this.fmtDate(e.createdAt),
+        _q: `${it ? it.name : ''} ${d ? d.names + ' ' + d.surnames : ''}`.toLowerCase(),
+        onClick: () => this.openDetail('entry', e.id),
+      };
+    });
+    const q2 = S.searchEnt.trim().toLowerCase();
+    if (q2) entriesData = entriesData.filter(r => r._q.includes(q2));
+
+    // ---- exit rows ----
+    let exitsData = S.exits.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(e => {
+      const it = this.itemById(e.itemId); const d = e.recipientId ? this.perById(e.recipientId) : null;
+      return {
+        id: e.id, itemName: it ? it.name : '—', personName: d ? `${d.names} ${d.surnames}` : 'Sin beneficiario',
+        qty: this.fmtNum(e.quantity), unitShort: it ? this.unitShort(it.unit) : '', date: this.fmtDate(e.createdAt),
+        _q: `${it ? it.name : ''} ${d ? d.names + ' ' + d.surnames : ''}`.toLowerCase(),
+        onClick: () => this.openDetail('exit', e.id),
+      };
+    });
+    const q3 = S.searchExi.trim().toLowerCase();
+    if (q3) exitsData = exitsData.filter(r => r._q.includes(q3));
+
+    // ---- person rows ----
+    let personsData = S.persons.map(p => {
+      const [bg, color] = this.avatarPalette(p.id);
+      return {
+        id: p.id, initials: this.initials(p), fullName: `${p.names} ${p.surnames}`,
+        meta: [p.dni, p.phone ? this.fmtPhone(p.phone) : null].filter(Boolean).join(' · ') || 'Sin datos de contacto',
+        avatarBg: bg, avatarColor: color,
+        _q: `${p.names} ${p.surnames} ${p.dni || ''}`.toLowerCase(),
+        onClick: () => this.openDetail('person', p.id),
+      };
+    });
+    const q4 = S.searchPer.trim().toLowerCase();
+    if (q4) personsData = personsData.filter(r => r._q.includes(q4));
+
+    // ---- item rows ----
+    let itemsData = S.items.map(it => ({
+      id: it.id, name: it.name, unit: it.unit, barcode: it.barcode || 'Sin código',
+      _q: `${it.name} ${it.barcode || ''}`.toLowerCase(),
+      onClick: () => this.openDetail('item', it.id),
+    }));
+    const q5 = S.searchArt.trim().toLowerCase();
+    if (q5) itemsData = itemsData.filter(r => r._q.includes(q5));
+
+    // ---- header ----
+    const titles = { inventory: 'Inventario', entries: 'Entradas', exits: 'Salidas', persons: 'Personas', items: 'Artículos' };
+    const kickers = { inventory: 'Stock actual', entries: 'Recibido en acopio', exits: 'Entregado', persons: 'Donantes y beneficiarios', items: 'Catálogo' };
+    const placeholders = { inventory: 'Buscar artículo…', entries: 'Buscar entrada…', exits: 'Buscar salida…', persons: 'Buscar persona…', items: 'Buscar artículo o código…' };
+    const searchByTab = { inventory: S.searchInv, entries: S.searchEnt, exits: S.searchExi, persons: S.searchPer, items: S.searchArt };
+    const searchKey = { inventory: 'searchInv', entries: 'searchEnt', exits: 'searchExi', persons: 'searchPer', items: 'searchArt' };
+
+    // ---- detail ----
+    const detail = this.buildDetail();
+
+    // ---- movement form ----
+    const isEntry = S.movKind === 'entry';
+    const form = isEntry ? S.ef : S.xf;
+    const selItem = form.itemId ? this.itemById(form.itemId) : null;
+    const perId = isEntry ? form.donorId : form.recipientId;
+    const selPer = perId ? this.perById(perId) : null;
+
+    // ---- selector ----
+    const sel = this.buildSelector();
+
+    // ---- unit chips ----
+    const unitChips = this.UNITS.map(u => {
+      const on = S.af.unit === u;
+      return { label: u === 'Kilogramos (kg)' ? 'Kg' : u, onClick: () => this.setState({ af: { ...S.af, unit: u } }),
+        bg: on ? '#165382' : '#f5f7fa', color: on ? '#fff' : '#5c7186', border: on ? '#165382' : '#e6ebf1' };
+    });
+
+    return {
+      isLogin: S.screen === 'login', isApp: S.screen === 'app',
+      loginEmail: S.loginEmail, loginPass: S.loginPass, loginError: S.loginError,
+      onLoginEmail: (e) => set({ loginEmail: e.target.value, loginError: '' }),
+      onLoginPass: (e) => set({ loginPass: e.target.value, loginError: '' }),
+      doLogin: this.doLogin, logout: this.logout,
+
+      isInventory: S.tab === 'inventory', isEntries: S.tab === 'entries', isExits: S.tab === 'exits',
+      isPersons: S.tab === 'persons', isItems: S.tab === 'items',
+      c_inv: activeColor('inventory'), c_ent: activeColor('entries'), c_exi: activeColor('exits'),
+      c_art: activeColor('items'), c_per: activeColor('persons'),
+      goInventory: () => set({ tab: 'inventory' }), goEntries: () => set({ tab: 'entries' }),
+      goExits: () => set({ tab: 'exits' }), goItems: () => set({ tab: 'items' }), goPersons: () => set({ tab: 'persons' }),
+
+      headerTitle: titles[S.tab], headerKicker: kickers[S.tab],
+      searchPlaceholder: placeholders[S.tab], searchValue: searchByTab[S.tab],
+      onSearch: (e) => set({ [searchKey[S.tab]]: e.target.value }),
+      clearSearch: () => set({ [searchKey[S.tab]]: '' }),
+      showAdd: S.tab !== 'inventory', onAdd: this.onAdd,
+      openMenu: () => this.openDrawer('menu'),
+
+      inventoryRows: inv, inventoryEmpty: inv.length === 0,
+      stat_total: S.items.length, stat_low: lowCount, stat_out: outCount,
+      entryRows: entriesData, entriesEmpty: entriesData.length === 0,
+      exitRows: exitsData, exitsEmpty: exitsData.length === 0,
+      personRows: personsData, personsEmpty: personsData.length === 0,
+      itemRows: itemsData, itemsEmpty: itemsData.length === 0,
+
+      // drawer chrome
+      backdropOpacity: S.drawerOpen ? '1' : '0',
+      drawerPointer: S.drawerOpen ? 'auto' : 'none',
+      drawerTranslate: S.drawerOpen ? '0%' : '100%',
+      closeDrawer: this.closeDrawer,
+      toast: S.toast,
+
+      dMenu: S.drawer === 'menu',
+      goInventoryFromMenu: () => { this.closeDrawer(); set({ tab: 'inventory' }); },
+
+      // detail
+      dDetail: S.drawer === 'detail',
+      ...detail,
+
+      // movement form
+      dMovForm: S.drawer === 'movForm',
+      mov_title: (S.editId ? 'Editar ' : 'Registrar ') + (isEntry ? 'entrada' : 'salida'),
+      mov_cta: (S.editId ? 'Guardar cambios' : (isEntry ? 'Registrar entrada' : 'Registrar salida')),
+      mov_pickItem: () => this.openSelector(isEntry ? 'entryItem' : 'exitItem'),
+      mov_itemLabel: selItem ? selItem.name : 'Seleccionar artículo',
+      mov_itemColor: selItem ? '#12212e' : '#9aa8b6',
+      mov_qty: form.quantity, onMovQty: (e) => this.setMov('quantity', e.target.value),
+      mov_unit: selItem ? selItem.unit : '—',
+      mov_personLabel: isEntry ? 'Donante' : 'Beneficiario',
+      mov_pickPerson: () => this.openSelector(isEntry ? 'entryDonor' : 'exitRecipient'),
+      mov_personVal: selPer ? `${selPer.names} ${selPer.surnames}` : `Seleccionar ${isEntry ? 'donante' : 'beneficiario'}`,
+      mov_personColor: selPer ? '#12212e' : '#9aa8b6',
+      mov_notes: form.notes, onMovNotes: (e) => this.setMov('notes', e.target.value),
+      mov_submit: this.submitMov,
+      formError: S.formError,
+
+      // person form
+      dPersonForm: S.drawer === 'personForm',
+      person_title: S.editId ? 'Editar persona' : 'Nueva persona',
+      person_cta: S.editId ? 'Guardar cambios' : 'Crear persona',
+      pf_names: S.pf.names, pf_surnames: S.pf.surnames, pf_dni: S.pf.dni, pf_phone: S.pf.phone, pf_address: S.pf.address, pf_notes: S.pf.notes,
+      onPfNames: (e) => this.setPf('names', e.target.value), onPfSurnames: (e) => this.setPf('surnames', e.target.value),
+      onPfDni: (e) => this.setPf('dni', e.target.value.toUpperCase()), onPfPhone: (e) => this.setPf('phone', e.target.value),
+      onPfAddress: (e) => this.setPf('address', e.target.value), onPfNotes: (e) => this.setPf('notes', e.target.value),
+      person_submit: this.submitPerson,
+
+      // item form
+      dItemForm: S.drawer === 'itemForm',
+      item_title: S.editId ? 'Editar artículo' : 'Nuevo artículo',
+      item_cta: S.editId ? 'Guardar cambios' : 'Crear artículo',
+      af_name: S.af.name, af_barcode: S.af.barcode,
+      onAfName: (e) => this.setState({ af: { ...S.af, name: e.target.value } }),
+      onAfBarcode: (e) => this.setState({ af: { ...S.af, barcode: e.target.value } }),
+      unitChips, scanBarcode: () => this.startScan('itemBarcode'), item_submit: this.submitItem,
+
+      // selector
+      dSelector: S.drawer === 'selector',
+      ...sel,
+      selSearch: S.selSearch, onSelSearch: (e) => set({ selSearch: e.target.value }),
+      selectorBack: this.selectorBack,
+      scanSelect: () => this.startScan('select'),
+
+      // scan
+      dScan: S.drawer === 'scan',
+    };
+  }
+
+  fmtPhone(p) { return p ? `0${p.slice(0, 3)} ${p.slice(3)}` : ''; }
+
+  buildDetail() {
+    const S = this.state;
+    if (S.drawer !== 'detail') return {};
+    const t = S.detailType, id = S.detailId;
+    let o = { detail_hasStock: false, detail_isInventory: false, detail_canEdit: true, detailFields: [] };
+    if (t === 'inventory' || t === 'item') {
+      const it = this.itemById(id); if (!it) return o;
+      const { te, tx, av } = this.stock(it.id);
+      o.detail_iconBg = '#eaf1f7'; o.detail_iconColor = '#2c6ea0'; o.detail_iconText = '📦'.length ? 'ART' : '';
+      o.detail_iconText = 'ART'; o.detail_title = it.name;
+      o.detail_subtitle = it.unit;
+      o.detail_hasStock = true; o.detail_entries = this.fmtNum(te); o.detail_exits = this.fmtNum(tx); o.detail_available = this.fmtNum(av);
+      o.detail_isInventory = t === 'inventory';
+      o.detailFields = [
+        { label: 'Código de barras', value: it.barcode || '—' },
+        { label: 'Unidad', value: it.unit },
+      ];
+      o.detailEdit = () => this.openItemForm(it);
+      o.detailArchive = () => this.archive('item', it.id);
+      o.detailAddEntry = () => this.startMov('entry', it.id);
+      o.detailAddExit = () => this.startMov('exit', it.id);
+    } else if (t === 'person') {
+      const p = this.perById(id); if (!p) return o;
+      const [bg, color] = this.avatarPalette(p.id);
+      o.detail_iconBg = bg; o.detail_iconColor = color; o.detail_iconText = this.initials(p);
+      o.detail_title = `${p.names} ${p.surnames}`; o.detail_subtitle = p.dni || 'Sin cédula';
+      const donCount = this.state.entries.filter(e => e.donorId === p.id).length;
+      const recCount = this.state.exits.filter(e => e.recipientId === p.id).length;
+      o.detailFields = [
+        { label: 'Teléfono', value: p.phone ? this.fmtPhone(p.phone) : '—' },
+        { label: 'Dirección', value: p.address || '—' },
+        { label: 'Donaciones', value: String(donCount) },
+        { label: 'Entregas recibidas', value: String(recCount) },
+        { label: 'Notas', value: p.notes || '—' },
+      ];
+      o.detailEdit = () => this.openPersonForm(p);
+      o.detailArchive = () => this.archive('person', p.id);
+    } else if (t === 'entry' || t === 'exit') {
+      const arr = t === 'entry' ? this.state.entries : this.state.exits;
+      const e = arr.find(x => x.id === id); if (!e) return o;
+      const it = this.itemById(e.itemId);
+      const pid = t === 'entry' ? e.donorId : e.recipientId;
+      const per = pid ? this.perById(pid) : null;
+      o.detail_iconBg = t === 'entry' ? '#e6f5ee' : '#fdeceb';
+      o.detail_iconColor = t === 'entry' ? '#2f9e6a' : '#d0574d';
+      o.detail_iconText = t === 'entry' ? '↓' : '↑';
+      o.detail_title = it ? it.name : '—';
+      o.detail_subtitle = `${t === 'entry' ? '+' : '−'}${this.fmtNum(e.quantity)} ${it ? this.unitShort(it.unit) : ''}`;
+      o.detailFields = [
+        { label: t === 'entry' ? 'Donante' : 'Beneficiario', value: per ? `${per.names} ${per.surnames}` : 'Sin registrar' },
+        { label: 'Cantidad', value: `${this.fmtNum(e.quantity)} ${it ? this.unitShort(it.unit) : ''}` },
+        { label: 'Fecha', value: this.fmtDateTime(e.createdAt) },
+        { label: 'Notas', value: e.notes || '—' },
+      ];
+      o.detailEdit = () => this.startMov(t, null, e);
+      o.detailArchive = () => this.archive(t, e.id);
+    }
+    return o;
+  }
+
+  buildSelector() {
+    const S = this.state;
+    if (S.drawer !== 'selector') return { selectorRows: [], selectorEmpty: false, selector_title: '', selector_placeholder: '', selector_showScan: false };
+    const mode = S.selectorMode;
+    const isItem = mode === 'entryItem' || mode === 'exitItem';
+    const q = S.selSearch.trim().toLowerCase();
+    let rows;
+    if (isItem) {
+      let list = S.items;
+      if (q) list = list.filter(i => i.name.toLowerCase().includes(q) || (i.barcode || '').includes(q));
+      rows = list.map(it => ({
+        title: it.name, sub: `${it.unit}${it.barcode ? ' · ' + it.barcode : ''}`,
+        icon: 'ART', iconBg: '#eaf1f7', iconColor: '#2c6ea0',
+        onClick: () => this.pickSelector(it.id),
+      }));
+    } else {
+      let list = S.persons;
+      if (q) list = list.filter(p => `${p.names} ${p.surnames} ${p.dni || ''}`.toLowerCase().includes(q));
+      rows = list.map(p => {
+        const [bg, color] = this.avatarPalette(p.id);
+        return { title: `${p.names} ${p.surnames}`, sub: p.dni || (p.phone ? this.fmtPhone(p.phone) : 'Sin datos'),
+          icon: this.initials(p), iconBg: bg, iconColor: color, onClick: () => this.pickSelector(p.id) };
+      });
+    }
+    return {
+      selectorRows: rows, selectorEmpty: rows.length === 0,
+      selector_title: isItem ? 'Elegir artículo' : (mode === 'entryDonor' ? 'Elegir donante' : 'Elegir beneficiario'),
+      selector_placeholder: isItem ? 'Buscar artículo o código…' : 'Buscar por nombre o cédula…',
+      selector_showScan: isItem,
+    };
+  }
+
+  // ---------- actions ----------
+  doLogin = () => {
+    if (!this.state.loginEmail.trim() || !this.state.loginPass.trim()) {
+      this.setState({ loginError: 'Ingresa tu correo y contraseña' });
+      return;
+    }
+    this.setState({ screen: 'app', tab: 'inventory' });
+  };
+  logout = () => { this.closeDrawer(); this.setState({ screen: 'login', loginPass: '', tab: 'inventory' }); };
+
+  onAdd = () => {
+    const t = this.state.tab;
+    if (t === 'entries') this.startMov('entry');
+    else if (t === 'exits') this.startMov('exit');
+    else if (t === 'persons') this.openPersonForm();
+    else if (t === 'items') this.openItemForm();
+  };
+
+  openDetail(type, id) { this.setState({ drawer: 'detail', drawerOpen: true, detailType: type, detailId: id, formError: '' }); }
+
+  startMov(kind, prefillItemId = null, edit = null) {
+    if (edit) {
+      const isE = kind === 'entry';
+      const f = { itemId: edit.itemId, quantity: String(edit.quantity), notes: edit.notes || '' };
+      if (isE) { f.donorId = edit.donorId; this.setState({ ef: f, xf: this.state.xf }); }
+      else { f.recipientId = edit.recipientId; this.setState({ xf: f }); }
+      this.setState({ movKind: kind, editId: edit.id, drawer: 'movForm', drawerOpen: true, formError: '' });
+    } else {
+      const blank = { itemId: prefillItemId, quantity: '', notes: '' };
+      if (kind === 'entry') this.setState({ ef: { ...blank, donorId: null } });
+      else this.setState({ xf: { ...blank, recipientId: null } });
+      this.setState({ movKind: kind, editId: null, drawer: 'movForm', drawerOpen: true, formError: '' });
+    }
+  }
+  setMov(key, val) {
+    const k = this.state.movKind === 'entry' ? 'ef' : 'xf';
+    this.setState({ [k]: { ...this.state[k], [key]: val }, formError: '' });
+  }
+  submitMov = () => {
+    const isE = this.state.movKind === 'entry';
+    const f = isE ? this.state.ef : this.state.xf;
+    if (!f.itemId) { this.setState({ formError: 'Selecciona un artículo' }); return; }
+    const qty = parseFloat(f.quantity);
+    if (!qty || qty <= 0) { this.setState({ formError: 'La cantidad debe ser mayor a cero' }); return; }
+    if (isE) {
+      if (this.state.editId) {
+        this.setState({ entries: this.state.entries.map(e => e.id === this.state.editId ? { ...e, quantity: qty, donorId: f.donorId, notes: f.notes } : e) });
+      } else {
+        this.setState({ entries: [...this.state.entries, { id: this.state.seq + 1, itemId: f.itemId, donorId: f.donorId, quantity: qty, notes: f.notes, createdAt: new Date().toISOString() }], seq: this.state.seq + 1 });
+      }
+    } else {
+      if (this.state.editId) {
+        this.setState({ exits: this.state.exits.map(e => e.id === this.state.editId ? { ...e, quantity: qty, recipientId: f.recipientId, notes: f.notes } : e) });
+      } else {
+        this.setState({ exits: [...this.state.exits, { id: this.state.seq + 1, itemId: f.itemId, recipientId: f.recipientId, quantity: qty, notes: f.notes, createdAt: new Date().toISOString() }], seq: this.state.seq + 1 });
+      }
+    }
+    const label = isE ? 'Entrada' : 'Salida';
+    this.closeDrawer();
+    this.showToast(`${label} ${this.state.editId ? 'actualizada' : 'registrada'}`);
+  };
+
+  openSelector(mode) { this.setState({ returnDrawer: this.state.drawer, selectorMode: mode, selSearch: '', drawer: 'selector', drawerOpen: true }); }
+  selectorBack = () => { this.setState({ drawer: this.state.returnDrawer || 'movForm', selectorMode: null }); };
+  pickSelector(id) {
+    const mode = this.state.selectorMode;
+    if (mode === 'entryItem') this.setState({ ef: { ...this.state.ef, itemId: id } });
+    else if (mode === 'exitItem') this.setState({ xf: { ...this.state.xf, itemId: id } });
+    else if (mode === 'entryDonor') this.setState({ ef: { ...this.state.ef, donorId: id } });
+    else if (mode === 'exitRecipient') this.setState({ xf: { ...this.state.xf, recipientId: id } });
+    this.setState({ drawer: this.state.returnDrawer || 'movForm', selectorMode: null });
+  }
+
+  openPersonForm(p = null) {
+    if (p) this.setState({ pf: { names: p.names, surnames: p.surnames, dni: p.dni || '', phone: p.phone || '', address: p.address || '', notes: p.notes || '' }, editId: p.id });
+    else this.setState({ pf: { names: '', surnames: '', dni: '', phone: '', address: '', notes: '' }, editId: null });
+    this.setState({ drawer: 'personForm', drawerOpen: true, formError: '' });
+  }
+  setPf(key, val) { this.setState({ pf: { ...this.state.pf, [key]: val }, formError: '' }); }
+  submitPerson = () => {
+    const f = this.state.pf;
+    if (!f.names.trim() || !f.surnames.trim()) { this.setState({ formError: 'Nombres y apellidos son obligatorios' }); return; }
+    if (f.dni.trim() && !/^[A-Z][0-9]+$/.test(f.dni.trim())) { this.setState({ formError: 'El DNI debe comenzar con una letra mayúscula seguida de números (ej. V12345678)' }); return; }
+    if (f.phone.trim() && !/^(412|422|414|424|416|426)\d{7}$/.test(f.phone.trim())) { this.setState({ formError: 'El teléfono debe tener 10 dígitos y comenzar por 412, 414, 424, 416, 422 o 426' }); return; }
+    const payload = { names: f.names.trim(), surnames: f.surnames.trim(), dni: f.dni.trim() || null, phone: f.phone.trim() || null, address: f.address.trim() || null, notes: f.notes.trim() || null };
+    if (this.state.editId) {
+      this.setState({ persons: this.state.persons.map(p => p.id === this.state.editId ? { ...p, ...payload } : p) });
+    } else {
+      this.setState({ persons: [...this.state.persons, { id: this.state.seq + 1, ...payload }], seq: this.state.seq + 1 });
+    }
+    const editing = !!this.state.editId;
+    this.closeDrawer();
+    this.showToast(editing ? 'Persona actualizada' : 'Persona creada');
+  };
+
+  openItemForm(it = null) {
+    if (it) this.setState({ af: { name: it.name, barcode: it.barcode || '', unit: it.unit || 'Unidades' }, editId: it.id });
+    else this.setState({ af: { name: '', barcode: '', unit: 'Unidades' }, editId: null });
+    this.setState({ drawer: 'itemForm', drawerOpen: true, formError: '' });
+  }
+  submitItem = () => {
+    const f = this.state.af;
+    if (!f.name.trim()) { this.setState({ formError: 'El nombre del artículo es obligatorio' }); return; }
+    if (f.name.trim().length > 150) { this.setState({ formError: 'El nombre no puede tener más de 150 caracteres' }); return; }
+    if (f.barcode.trim()) {
+      const dup = this.state.items.find(i => i.barcode === f.barcode.trim() && i.id !== this.state.editId);
+      if (dup) { this.setState({ formError: 'Ya existe un artículo con ese código de barras' }); return; }
+    }
+    const payload = { name: f.name.trim(), barcode: f.barcode.trim() || null, unit: f.unit };
+    if (this.state.editId) {
+      this.setState({ items: this.state.items.map(i => i.id === this.state.editId ? { ...i, ...payload } : i) });
+    } else {
+      this.setState({ items: [...this.state.items, { id: this.state.seq + 1, ...payload }], seq: this.state.seq + 1 });
+    }
+    const editing = !!this.state.editId;
+    this.closeDrawer();
+    this.showToast(editing ? 'Artículo actualizado' : 'Artículo creado');
+  };
+
+  archive(type, id) {
+    if (type === 'item') this.setState({ items: this.state.items.filter(i => i.id !== id) });
+    else if (type === 'person') this.setState({ persons: this.state.persons.filter(p => p.id !== id) });
+    else if (type === 'entry') this.setState({ entries: this.state.entries.filter(e => e.id !== id) });
+    else if (type === 'exit') this.setState({ exits: this.state.exits.filter(e => e.id !== id) });
+    const names = { item: 'Artículo', person: 'Persona', entry: 'Entrada', exit: 'Salida' };
+    this.closeDrawer();
+    this.showToast(`${names[type]} archivada`);
+  }
+
+  startScan(target) { this.setState({ scanTarget: target, drawer: 'scan', drawerOpen: true }); clearTimeout(this._s); this._s = setTimeout(() => this.finishScan(), 1900); }
+  finishScan() {
+    const t = this.state.scanTarget;
+    if (this.state.drawer !== 'scan') return;
+    if (t === 'itemBarcode') {
+      const code = '759101600' + String(1000 + Math.floor(Math.random() * 8999));
+      this.setState({ af: { ...this.state.af, barcode: code }, drawer: 'itemForm' });
+      this.showToast('Código detectado');
+    } else if (t === 'select') {
+      const it = this.state.items[0];
+      if (it) {
+        if (this.state.selectorMode === 'entryItem') this.setState({ ef: { ...this.state.ef, itemId: it.id } });
+        else this.setState({ xf: { ...this.state.xf, itemId: it.id } });
+      }
+      this.setState({ drawer: this.state.returnDrawer || 'movForm', selectorMode: null });
+      this.showToast('Artículo detectado');
+    }
+  }
+}
+</script>
+</body>
+</html>

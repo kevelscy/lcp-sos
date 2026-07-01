@@ -1,172 +1,254 @@
-import { useState } from 'react'
-import { Archive, ChevronRight, MoreVertical, Phone, Users } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useContext, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { toast } from 'sonner'
 
-import { ArchiveDialog } from '@/shared/components/archive-dialog'
-import { EmptyState } from '@/shared/components/empty-state'
-import { PageHeader } from '@/shared/components/page-header'
-import { PaginationControls } from '@/shared/components/pagination-controls'
-import { SearchBar } from '@/shared/components/search-bar'
-import { Badge } from '@/shared/components/ui/badge'
-import { Card, CardContent } from '@/shared/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu'
-import { Input } from '@/shared/components/ui/input'
+import { Drawer } from '@/shared/components/drawer'
 import { Skeleton } from '@/shared/components/ui/skeleton'
-import { buttonVariants } from '@/shared/components/ui/button'
-import { cn } from '@/shared/lib/utils'
-import { DEFAULT_PAGE_SIZE } from '@/shared/lib/constants'
-import type { PaginationInfo } from '@/shared/lib/types'
-import { useArchivePerson, usePersons } from '@/features/persons/hooks'
+import { AddContext } from '@/shared/layouts/app-layout'
+import { useArchivePerson, useCreatePerson, usePersons, useUpdatePerson } from '@/features/persons/hooks'
+import { toCreatePersonDTO, type PersonFormValues } from '@/features/persons/schemas'
+import { PersonDrawerForm } from '@/features/persons/components/person-drawer-form'
 import type { Person } from '@/features/persons/types'
 
-export function PersonsListPage() {
-  const navigate = useNavigate()
-  const [dniFilter, setDniFilter] = useState('')
-  const { data, totalCount, loading, error, page, setPage, search, setSearch, refetch } =
-    usePersons(dniFilter ? { dni: dniFilter } : undefined)
-  const { archivePerson, submitting } = useArchivePerson()
-  const [personToArchive, setPersonToArchive] = useState<Person | null>(null)
+interface OutletCtx { searchValue: string }
 
-  const pageSize = DEFAULT_PAGE_SIZE
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
-  const pagination: PaginationInfo = {
-    totalItems: totalCount,
-    totalPages,
-    currentPage: page,
-    pageSize,
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1,
+const AVATAR_PALETTES = [
+  ['#eaf1f7', '#2c6ea0'],
+  ['#e9f3ec', '#2f9e6a'],
+  ['#f5edda', '#b5851f'],
+  ['#f3e9f0', '#9a4d84'],
+  ['#eae9f5', '#5a52a0'],
+]
+
+function getInitials(person: Person) {
+  return ((person.names[0] ?? '') + (person.surnames[0] ?? '')).toUpperCase()
+}
+
+function getAvatar(person: Person) {
+  const palette = AVATAR_PALETTES[person.id % AVATAR_PALETTES.length]
+  return { bg: palette[0], color: palette[1] }
+}
+
+export function PersonsListPage() {
+  const { searchValue } = useOutletContext<OutletCtx>()
+  const { data, loading, error, refetch } = usePersons()
+  const { archivePerson } = useArchivePerson()
+  const { createPerson, submitting: createSubmitting } = useCreatePerson()
+  const { updatePerson, submitting: updateSubmitting } = useUpdatePerson()
+
+  const { registerAddHandler } = useContext(AddContext)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+  const [formError, setFormError] = useState('')
+
+  useEffect(() => {
+    return registerAddHandler(() => { setFormError(''); setCreateOpen(true) })
+  }, [registerAddHandler])
+
+  const filtered = searchValue
+    ? data.filter(
+        (p) =>
+          `${p.names} ${p.surnames}`.toLowerCase().includes(searchValue.toLowerCase()) ||
+          (p.dni && p.dni.toLowerCase().includes(searchValue.toLowerCase()))
+      )
+    : data
+
+  async function handleCreate(values: PersonFormValues) {
+    setFormError('')
+    try {
+      const person = await createPerson(toCreatePersonDTO(values))
+      if (person) {
+        setCreateOpen(false)
+        toast.success('Persona creada')
+        refetch()
+      }
+    } catch {
+      setFormError('No se pudo crear la persona. Intentá de nuevo.')
+    }
   }
 
-  async function handleConfirmArchive() {
-    if (!personToArchive) return
-    const success = await archivePerson(personToArchive.id)
-    if (success) {
+  async function handleUpdate(values: PersonFormValues) {
+    if (!selectedPerson) return
+    setFormError('')
+    try {
+      const ok = await updatePerson(selectedPerson.id, toCreatePersonDTO(values))
+      if (ok) {
+        setEditOpen(false)
+        toast.success('Persona actualizada')
+        refetch()
+      }
+    } catch {
+      setFormError('No se pudo actualizar. Intentá de nuevo.')
+    }
+  }
+
+  async function handleArchive() {
+    if (!selectedPerson) return
+    const ok = await archivePerson(selectedPerson.id)
+    if (ok) {
+      setDetailOpen(false)
       toast.success('Persona archivada')
-      setPersonToArchive(null)
       refetch()
     }
   }
 
+  function openDetail(person: Person) {
+    setSelectedPerson(person)
+    setDetailOpen(true)
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader
-        title={totalCount > 0 && !loading ? `Personas (${totalCount})` : 'Personas'}
-        actionLabel="Nueva persona"
-        onAction={() => navigate('/persons/new')}
-      />
-
-      {/* Toolbar */}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex-1">
-          <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nombre..." />
-        </div>
-        <Input
-          value={dniFilter}
-          onChange={(event) => setDniFilter(event.target.value)}
-          placeholder="Filtrar por DNI"
-          aria-label="Filtrar por DNI"
-          className="h-11 sm:max-w-44"
-        />
-      </div>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
+    <div style={{ animation: 'screenIn .32s ease' }}>
+      {error && (
+        <p style={{ color: '#c8392f', fontSize: 13, fontWeight: 600, textAlign: 'center', marginBottom: 12 }}>{error}</p>
+      )}
 
       {loading ? (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-[72px] w-full rounded-xl" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-[72px] w-full rounded-[18px]" />
           ))}
         </div>
-      ) : data.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          description="Intenta con otro nombre o DNI, o creá una nueva persona."
-          actionLabel="Nueva persona"
-          onAction={() => navigate('/persons/new')}
-        />
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '44px 20px', color: '#9aa8b6', fontWeight: 500 }}>
+          {searchValue ? 'Sin resultados' : 'No hay personas registradas'}
+        </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {data.map((person) => (
-            <Card
-              key={person.id}
-              className="cursor-pointer motion-safe:transition-shadow motion-safe:hover:shadow-md"
-              onClick={() => navigate(`/persons/${person.id}/edit`)}
-            >
-              <CardContent className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  {/* Primary: full name */}
-                  <p className="truncate text-base font-semibold leading-tight text-foreground">
+        <div>
+          {filtered.map((person) => {
+            const { bg, color } = getAvatar(person)
+            const initials = getInitials(person)
+            return (
+              <button
+                key={person.id}
+                onClick={() => openDetail(person)}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  background: '#fff',
+                  border: '1.5px solid #e9edf2',
+                  borderRadius: 18,
+                  padding: '13px 15px',
+                  marginBottom: 10,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 13,
+                  fontFamily: 'inherit',
+                }}
+                onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(.985)'; e.currentTarget.style.borderColor = '#cfdae4' }}
+                onMouseUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = '#e9edf2' }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = '#e9edf2' }}
+              >
+                {/* Avatar */}
+                <div style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 15, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color }}>
+                  {initials}
+                </div>
+
+                {/* Name + meta */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 15.5, fontWeight: 700, color: '#122433', lineHeight: 1.25, marginBottom: 3 }}>
                     {person.names} {person.surnames}
-                  </p>
-
-                  {/* Secondary: DNI + phone */}
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {person.dni && (
-                      <Badge
-                        variant="secondary"
-                        className="rounded-md px-1.5 py-0 font-mono text-xs"
-                      >
-                        {person.dni}
-                      </Badge>
-                    )}
-                    {person.phone && (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Phone className="size-3 shrink-0" aria-hidden="true" />
-                        {person.phone}
-                      </span>
-                    )}
+                  </div>
+                  <div style={{ fontSize: 12.5, fontWeight: 500, color: '#8a99a8' }}>
+                    {[person.dni, person.phone].filter(Boolean).join(' · ') || 'Sin datos de contacto'}
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1">
-                  <ChevronRight className="size-4 text-muted-foreground/50" aria-hidden="true" />
-
-                  <div onClick={(event) => event.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}
-                        aria-label="Más acciones"
-                      >
-                        <MoreVertical className="size-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => setPersonToArchive(person)}
-                        >
-                          <Archive />
-                          Archivar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                {/* Chevron */}
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c3ccd6" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 6 6 6-6 6"/>
+                </svg>
+              </button>
+            )
+          })}
         </div>
       )}
 
-      <PaginationControls pagination={pagination} onPageChange={setPage} />
+      {/* Create person drawer */}
+      <Drawer open={createOpen} onClose={() => setCreateOpen(false)}>
+        <PersonDrawerForm
+          onSubmit={handleCreate}
+          submitting={createSubmitting}
+          formError={formError}
+        />
+      </Drawer>
 
-      <ArchiveDialog
-        open={!!personToArchive}
-        onOpenChange={(open) => !open && setPersonToArchive(null)}
-        onConfirm={handleConfirmArchive}
-        loading={submitting}
-        description={
-          personToArchive
-            ? `¿Estás seguro de que deseas archivar a ${personToArchive.names} ${personToArchive.surnames}?`
-            : undefined
-        }
-      />
+      {/* Detail drawer */}
+      <Drawer open={detailOpen} onClose={() => setDetailOpen(false)}>
+        {selectedPerson && (
+          <div className="scrollarea" style={{ overflowY: 'auto', padding: '6px 22px 30px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 20 }}>
+              <div style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 16, background: getAvatar(selectedPerson).bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: getAvatar(selectedPerson).color, fontSize: 16 }}>
+                {getInitials(selectedPerson)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: '#0f2a40', letterSpacing: '-.4px', lineHeight: 1.2 }}>
+                  {selectedPerson.names} {selectedPerson.surnames}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#8a99a8', marginTop: 3 }}>Persona registrada</div>
+              </div>
+            </div>
+
+            {[
+              { label: 'Cédula / DNI', value: selectedPerson.dni ?? '—' },
+              { label: 'Teléfono', value: selectedPerson.phone ?? '—' },
+              { label: 'Dirección', value: selectedPerson.address ?? '—' },
+              { label: 'Notas', value: selectedPerson.notes ?? '—' },
+            ].map((f) => (
+              <div key={f.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, padding: '13px 0', borderBottom: '1px solid #f0f3f6' }}>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: '#8a99a8', flexShrink: 0 }}>{f.label}</span>
+                <span style={{ fontSize: 14.5, fontWeight: 600, color: '#243444', textAlign: 'right' }}>{f.value}</span>
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', gap: 11, marginTop: 22 }}>
+              <button
+                onClick={() => { setDetailOpen(false); setFormError(''); setEditOpen(true) }}
+                style={{ flex: 1, background: '#eaf1f7', color: '#165382', border: 'none', borderRadius: 14, padding: 15, fontSize: 14.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#165382" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
+                </svg>
+                Editar
+              </button>
+              <button
+                onClick={handleArchive}
+                style={{ flex: 1, background: '#fdeceb', color: '#c8392f', border: 'none', borderRadius: 14, padding: 15, fontSize: 14.5, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c8392f" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/>
+                </svg>
+                Archivar
+              </button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Edit drawer */}
+      <Drawer open={editOpen} onClose={() => setEditOpen(false)}>
+        {selectedPerson && (
+          <PersonDrawerForm
+            defaultValues={{
+              names: selectedPerson.names,
+              surnames: selectedPerson.surnames,
+              dni: selectedPerson.dni ?? '',
+              phone: selectedPerson.phone ?? '',
+              address: selectedPerson.address ?? '',
+              notes: selectedPerson.notes ?? '',
+            }}
+            onSubmit={handleUpdate}
+            submitting={updateSubmitting}
+            formError={formError}
+            title="Editar persona"
+            submitLabel="Guardar cambios"
+          />
+        )}
+      </Drawer>
     </div>
   )
 }
