@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Drawer } from '@/shared/components/drawer'
+import { BarcodeScanner } from '@/shared/components/barcode-scanner'
 
 export interface SelectorRow {
   id: number
@@ -19,6 +20,8 @@ interface SelectorDrawerProps {
   onBack: () => void
   fetchRows: (query: string) => Promise<SelectorRow[]>
   onSelect: (row: SelectorRow) => void
+  /** Called when the barcode scanner detects a code. */
+  onScanBarcode?: (code: string) => void
 }
 
 /**
@@ -33,10 +36,12 @@ export function SelectorDrawer({
   onBack,
   fetchRows,
   onSelect,
+  onScanBarcode,
 }: SelectorDrawerProps) {
   const [query, setQuery] = useState('')
   const [rows, setRows] = useState<SelectorRow[]>([])
   const [loading, setLoading] = useState(false)
+  const [scannerOpen, setScannerOpen] = useState(false)
 
   // Stable ref to fetchRows to avoid infinite re-fetches from inline arrow fns
   const fetchRef = useRef(fetchRows)
@@ -87,6 +92,7 @@ export function SelectorDrawer({
   }, [query, open, stableFetch])
 
   return (
+    <>
     <Drawer open={open} onClose={onBack} maxHeight="90%" zLayer={60} skipBodyLock>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
         {/* Header */}
@@ -151,6 +157,8 @@ export function SelectorDrawer({
 
           {showScan && (
             <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
               style={{
                 marginTop: 12,
                 width: '100%',
@@ -256,5 +264,23 @@ export function SelectorDrawer({
         </div>
       </div>
     </Drawer>
+
+    {/* Barcode scanner */}
+    {showScan && (
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={(code) => {
+          setScannerOpen(false)
+          if (onScanBarcode) {
+            onScanBarcode(code)
+          } else {
+            // Default: use the scanned code as search query
+            setQuery(code)
+          }
+        }}
+      />
+    )}
+    </>
   )
 }
