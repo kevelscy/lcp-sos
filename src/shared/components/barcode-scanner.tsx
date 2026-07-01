@@ -11,46 +11,43 @@ interface BarcodeScannerProps {
   onClose: () => void
 }
 
-/**
- * Camera-based barcode scanner using html5-qrcode for reliable 1D/2D
- * detection. Renders inside our Drawer at zLayer=70 (above everything).
- */
+const READER_ID = 'barcode-reader'
+
 export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const [errorKind, setErrorKind] = useState<ErrorKind | null>(null)
   const [ready, setReady] = useState(false)
 
+  // Wait for drawer animation before mounting scanner
   useEffect(() => {
     if (!open) {
       setReady(false)
+      setErrorKind(null)
       return
     }
-
-    setErrorKind(null)
 
     if (!window.isSecureContext) {
       setErrorKind('insecure')
       return
     }
 
-    // Wait for drawer animation so the container is in the DOM and visible
-    const delay = setTimeout(() => setReady(true), 450)
+    const delay = setTimeout(() => setReady(true), 500)
     return () => clearTimeout(delay)
   }, [open])
 
-  // Start scanner once ready
+  // Start scanner
   useEffect(() => {
     if (!ready || !open) return
 
-    const el = containerRef.current
-    if (!el) return
+    const el = document.getElementById(READER_ID)
+    if (!el) {
+      console.error('[BarcodeScanner] container not found')
+      return
+    }
 
-    // html5-qrcode needs a unique ID on the container
-    const id = el.id || 'barcode-reader'
-    el.id = id
+    console.log('[BarcodeScanner] container size:', el.offsetWidth, 'x', el.offsetHeight)
 
-    const scanner = new Html5Qrcode(id)
+    const scanner = new Html5Qrcode(READER_ID)
     scannerRef.current = scanner
 
     scanner
@@ -58,9 +55,7 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
         { facingMode: 'environment' },
         {
           fps: 10,
-          qrbox: { width: 280, height: 120 },
-          aspectRatio: 1.7778,
-          disableFlip: false,
+          qrbox: { width: 250, height: 150 },
         },
         (decodedText) => {
           console.log('[BarcodeScanner] ✅ detected:', decodedText)
@@ -68,9 +63,11 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
           scannerRef.current = null
           onScan(decodedText)
         },
-        // Ignore errors — fires every frame without a barcode
         () => {}
       )
+      .then(() => {
+        console.log('[BarcodeScanner] scanning active')
+      })
       .catch((err: unknown) => {
         console.error('[BarcodeScanner] start error:', err)
         const msg = String(err)
@@ -84,16 +81,12 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
       })
 
     return () => {
-      scanner
-        .stop()
-        .then(() => scanner.clear())
-        .catch(() => {})
+      scanner.stop().then(() => scanner.clear()).catch(() => {})
       scannerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, open])
 
-  // Clean up on close
   function handleClose() {
     if (scannerRef.current) {
       scannerRef.current.stop().catch(() => {})
@@ -112,50 +105,27 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
           Apuntá la cámara al código de barras
         </div>
 
-        {/* Camera viewport */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: 260,
-          borderRadius: 22,
-          background: '#12212e',
-          overflow: 'hidden',
-        }}>
+        {/* Camera viewport — no overflow:hidden, let html5-qrcode control its own layout */}
+        <div style={{ position: 'relative', width: '100%', borderRadius: 22, overflow: 'hidden', background: '#12212e' }}>
           {errorKind ? (
             <ErrorState kind={errorKind} />
           ) : (
             <>
-              <div
-                ref={containerRef}
-                id="barcode-reader"
-                style={{ width: '100%', minHeight: 260 }}
-              />
+              <div id={READER_ID} style={{ width: '100%' }} />
 
-              {/* Scan line overlay (on top of the video) */}
+              {/* Scan line overlay */}
               {ready && (
-                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2 }} aria-hidden="true">
                   <div style={{
                     position: 'absolute',
                     left: '8%',
                     right: '8%',
                     height: 2.5,
+                    top: '50%',
                     background: 'linear-gradient(90deg, transparent, #4fd39a, transparent)',
                     boxShadow: '0 0 14px #4fd39a',
                     animation: 'scanline 1.7s ease-in-out infinite',
                   }} />
-
-                  <div style={{
-                    position: 'absolute',
-                    left: '50%',
-                    bottom: 16,
-                    transform: 'translateX(-50%)',
-                    display: 'flex',
-                    gap: 6,
-                  }}>
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite' }} />
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .2s' }} />
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .4s' }} />
-                  </div>
                 </div>
               )}
             </>
