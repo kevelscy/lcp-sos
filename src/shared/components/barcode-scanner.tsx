@@ -56,7 +56,14 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
     scanner
       .start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {
+          fps: 30,
+          qrbox: { width: 300, height: 180 },
+          // Use the native BarcodeDetector API when available (Chrome/Edge/Android)
+          // — significantly faster than the JS fallback
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        } as any,
         (decodedText) => {
           console.log('[BarcodeScanner] ✅ detected:', decodedText)
           safeStop()
