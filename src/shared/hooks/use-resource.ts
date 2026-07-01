@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import type { ResourceApi, ResourceListParams } from '@/shared/api/resource-factory'
@@ -88,6 +88,46 @@ export function useResourceList<T>(
     // `filters` itself is read fresh from the closure when this effect fires.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, page, pageSize, debouncedSearch, refreshTick, filtersKey])
+
+  // Poll every 20s, but only when the tab is visible
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    function startPolling() {
+      stopPolling()
+      intervalRef.current = setInterval(() => {
+        setRefreshTick((t) => t + 1)
+      }, 20_000)
+    }
+
+    function stopPolling() {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        stopPolling()
+      } else {
+        // Refetch immediately when tab becomes visible, then resume polling
+        setRefreshTick((t) => t + 1)
+        startPolling()
+      }
+    }
+
+    if (!document.hidden) {
+      startPolling()
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      stopPolling()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [])
 
   return { data, totalCount, loading, error, page, setPage, search, setSearch, refetch }
 }
