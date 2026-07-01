@@ -1,16 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BarcodeFormat, BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser'
-import { Camera, CameraOff, ShieldAlert, X } from 'lucide-react'
 
-import { Button } from '@/shared/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/components/ui/sheet'
+import { Drawer } from '@/shared/components/drawer'
 
 /** Common 1D barcode formats used on donated-goods packaging. */
 const SCAN_FORMATS = [
@@ -30,15 +21,11 @@ interface BarcodeScannerProps {
 }
 
 /**
- * Camera-based barcode scanner, opened as a bottom sheet (feels native on
- * mobile). Uses `@zxing/browser`'s `BrowserMultiFormatReader` to continuously
- * decode frames from the device camera until a barcode is found.
+ * Camera-based barcode scanner using our Drawer system (z-index 70)
+ * so it renders above any stacked drawers.
  *
- * IMPORTANT: `controls.stop()` (called on unmount, on close, and after a
- * successful scan) triggers zxing's internal `finalizeCallback`, which stops
- * every `MediaStreamTrack` and detaches the video source — this is the
- * library's documented way to release the camera, no manual track handling
- * needed on top of it.
+ * Uses `@zxing/browser` BrowserMultiFormatReader to continuously decode
+ * frames from the device camera until a barcode is found.
  */
 export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -97,127 +84,148 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
       controlsRef.current?.stop()
       controlsRef.current = null
     }
-    // Only `open` should restart the scan loop — `onScan` is read fresh from
-    // the closure on each call, restarting the camera on every parent
-    // re-render would be a poor UX (and unnecessary permission re-prompts).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   return (
-    <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
-      <SheetContent side="bottom" className="flex h-[75vh] flex-col gap-0 p-0">
-        <SheetHeader className="px-4 pt-4 pb-2">
-          <div className="flex items-center justify-between">
-            <SheetTitle>Escanear código de barras</SheetTitle>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={onClose}
-              aria-label="Cerrar escáner"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </Button>
-          </div>
-          <SheetDescription>
-            Apuntá la cámara al código de barras del artículo.
-          </SheetDescription>
-        </SheetHeader>
+    <Drawer open={open} onClose={onClose} zLayer={70} skipBodyLock>
+      <div style={{ padding: '6px 22px 34px' }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: '#0f2a40', textAlign: 'center', margin: '2px 0 4px' }}>
+          Escaneando…
+        </div>
+        <div style={{ fontSize: 13.5, fontWeight: 500, color: '#8a99a8', textAlign: 'center', marginBottom: 22 }}>
+          Apuntá la cámara al código de barras
+        </div>
 
         {/* Camera viewport */}
-        <div className="relative flex-1 overflow-hidden bg-black">
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: 260,
+          borderRadius: 22,
+          background: '#12212e',
+          overflow: 'hidden',
+        }}>
           {errorKind ? (
-            <ErrorState kind={errorKind} onClose={onClose} />
+            <ErrorState kind={errorKind} />
           ) : (
             <>
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
               <video
                 ref={videoRef}
-                className="h-full w-full object-cover"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 muted
                 playsInline
               />
 
               {/* Viewfinder overlay */}
-              <div
-                className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                aria-hidden="true"
-              >
-                {/* Corner-bordered frame */}
-                <div className="relative h-2/5 w-4/5 max-w-xs">
-                  {/* Corner marks */}
-                  <span className="absolute top-0 left-0 h-6 w-6 rounded-tl-sm border-t-2 border-l-2 border-white" />
-                  <span className="absolute top-0 right-0 h-6 w-6 rounded-tr-sm border-t-2 border-r-2 border-white" />
-                  <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-sm border-b-2 border-l-2 border-white" />
-                  <span className="absolute right-0 bottom-0 h-6 w-6 rounded-br-sm border-b-2 border-r-2 border-white" />
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
+                {/* Border frame */}
+                <div style={{
+                  position: 'absolute',
+                  left: '8%',
+                  right: '8%',
+                  top: '10%',
+                  bottom: '10%',
+                  border: '2px solid rgba(255,255,255,.25)',
+                  borderRadius: 16,
+                }} />
 
-                  {/* Scanning line — gated behind motion-safe */}
-                  <span className="motion-safe:animate-scan absolute inset-x-0 top-0 h-0.5 rounded-full bg-primary/80 shadow-[0_0_6px_2px_rgba(var(--primary),0.5)]" />
+                {/* Scan line */}
+                <div style={{
+                  position: 'absolute',
+                  left: '8%',
+                  right: '8%',
+                  height: 2.5,
+                  background: 'linear-gradient(90deg, transparent, #4fd39a, transparent)',
+                  boxShadow: '0 0 14px #4fd39a',
+                  animation: 'scanline 1.7s ease-in-out infinite',
+                }} />
+
+                {/* Pulsing dots */}
+                <div style={{
+                  position: 'absolute',
+                  left: '50%',
+                  bottom: 16,
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  gap: 6,
+                }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite' }} />
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .2s' }} />
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .4s' }} />
                 </div>
               </div>
             </>
           )}
         </div>
 
-        <SheetFooter className="px-4 py-3">
-          <Button type="button" variant="outline" onClick={onClose} className="w-full">
-            Cancelar
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            marginTop: 20,
+            width: '100%',
+            background: '#eef2f6',
+            color: '#3a4d5e',
+            border: 'none',
+            borderRadius: 14,
+            padding: 15,
+            fontSize: 15,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          Cancelar
+        </button>
+      </div>
+    </Drawer>
   )
 }
 
 /** Inline error state rendered inside the camera viewport. */
-function ErrorState({ kind, onClose }: { kind: ErrorKind; onClose: () => void }) {
-  const config = {
+function ErrorState({ kind }: { kind: ErrorKind }) {
+  const config: Record<ErrorKind, { icon: string; title: string; description: string }> = {
     permission: {
-      icon: ShieldAlert,
+      icon: '🔒',
       title: 'Permiso de cámara requerido',
-      description:
-        'Esta función necesita acceso a tu cámara. Permitilo en la configuración del navegador y volvé a intentarlo.',
+      description: 'Permití el acceso a la cámara en la configuración del navegador.',
     },
     'no-camera': {
-      icon: CameraOff,
+      icon: '📷',
       title: 'No se encontró cámara',
       description: 'Asegurate de que tu dispositivo tenga una cámara disponible.',
     },
     generic: {
-      icon: Camera,
+      icon: '⚠️',
       title: 'Error al iniciar la cámara',
-      description: 'No se pudo acceder a la cámara. Cerrá este panel e intentá nuevamente.',
+      description: 'No se pudo acceder a la cámara. Cerrá e intentá nuevamente.',
     },
     insecure: {
-      icon: ShieldAlert,
+      icon: '🔓',
       title: 'Conexión no segura',
-      description:
-        'Se requiere una conexión HTTPS para acceder a la cámara. Contactá al administrador.',
+      description: 'Se requiere HTTPS para acceder a la cámara.',
     },
-  } satisfies Record<ErrorKind, { icon: React.ElementType; title: string; description: string }>
+  }
 
-  const { icon: Icon, title, description } = config[kind]
+  const { icon, title, description } = config[kind]
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-white">
-      <div className="flex size-14 items-center justify-center rounded-full bg-white/10">
-        <Icon className="size-7 text-white/80" aria-hidden="true" />
-      </div>
-      <div>
-        <p className="font-semibold">{title}</p>
-        <p className="mt-1 text-sm text-white/70">{description}</p>
-      </div>
-      {kind === 'permission' && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="border-white/30 text-white hover:bg-white/10 hover:text-white"
-          onClick={onClose}
-        >
-          Entendido
-        </Button>
-      )}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      gap: 12,
+      padding: 24,
+      textAlign: 'center',
+      color: '#fff',
+    }}>
+      <div style={{ fontSize: 32 }}>{icon}</div>
+      <div style={{ fontWeight: 700, fontSize: 15 }}>{title}</div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,.7)' }}>{description}</div>
     </div>
   )
 }
