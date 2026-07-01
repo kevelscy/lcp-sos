@@ -248,7 +248,11 @@ export function EntryDrawerForm({
         showScan={true}
         onBack={() => setSelectorOpen(null)}
         fetchRows={async (q) => {
-          const res = await itemsApi.getAll({ name: q, limit: 20 })
+          const isBarcode = /^\d+$/.test(q.trim())
+          const res = await itemsApi.getAll({
+            ...(isBarcode ? { barcode: q.trim() } : { name: q }),
+            limit: 20,
+          })
           return res.data.map((item) => ({
             id: item.id,
             title: item.name,
