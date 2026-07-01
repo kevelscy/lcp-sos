@@ -47,12 +47,15 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
     hints.set(DecodeHintType.POSSIBLE_FORMATS, SCAN_FORMATS)
     hints.set(DecodeHintType.TRY_HARDER, true)
     const reader = new BrowserMultiFormatReader(hints)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(reader as any).timeBetweenDecodingAttempts = 200
 
     let cancelled = false
+    let frameCount = 0
 
     async function start() {
-      // Wait a tick for the video element to be in the DOM (drawer animates in)
-      await new Promise((r) => setTimeout(r, 350))
+      // Wait for the drawer animation to finish so the video element is visible
+      await new Promise((r) => setTimeout(r, 400))
       if (cancelled) return
 
       const videoEl = videoRef.current
@@ -63,20 +66,25 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
       }
 
       console.log('[BarcodeScanner] starting camera scan…')
+      console.log('[BarcodeScanner] video dimensions:', videoEl.offsetWidth, 'x', videoEl.offsetHeight)
 
       try {
         const controls = await reader.decodeFromConstraints(
-          { video: { facingMode: 'environment' } },
+          { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
           videoEl,
           (result, error, activeControls) => {
             if (cancelled) return
+            frameCount++
+            if (frameCount % 50 === 1) {
+              console.log(`[BarcodeScanner] scanning frame #${frameCount}, video: ${videoEl.videoWidth}x${videoEl.videoHeight}`)
+            }
             if (result) {
               const code = result.getText()
-              console.log('[BarcodeScanner] detected:', code)
+              console.log('[BarcodeScanner] ✅ detected:', code, 'format:', result.getBarcodeFormat())
               activeControls.stop()
               onScan(code)
+              return
             }
-            // error is normal — it fires every frame that has no barcode
             if (error && error.name !== 'NotFoundException') {
               console.warn('[BarcodeScanner] decode error:', error.name, error.message)
             }
@@ -87,7 +95,7 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
           controls.stop()
           return
         }
-        console.log('[BarcodeScanner] camera stream active')
+        console.log('[BarcodeScanner] camera stream active, video:', videoEl.videoWidth, 'x', videoEl.videoHeight)
         controlsRef.current = controls
       } catch (err) {
         if (cancelled) return
