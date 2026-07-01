@@ -7,6 +7,10 @@ interface DrawerProps {
   children: React.ReactNode
   /** Optional extra max-height (default 90vh). */
   maxHeight?: string
+  /** Z-index layer. Defaults to 50/51. Use higher values for stacked drawers. */
+  zLayer?: number
+  /** Skip body scroll-lock (for drawers stacked on top of another already-locked drawer). */
+  skipBodyLock?: boolean
 }
 
 /**
@@ -16,11 +20,12 @@ interface DrawerProps {
  * - Drag handle: 40x5px grey pill
  * - Scrollable content area inside
  */
-export function Drawer({ open, onClose, children, maxHeight = '90%' }: DrawerProps) {
+export function Drawer({ open, onClose, children, maxHeight = '90%', zLayer = 50, skipBodyLock = false }: DrawerProps) {
   const prevOpen = useRef(open)
 
-  // Lock body scroll when drawer is open
+  // Lock body scroll when drawer is open (skip for stacked drawers)
   useEffect(() => {
+    if (skipBodyLock) return
     if (open) {
       const scrollY = window.scrollY
       document.body.style.overflow = 'hidden'
@@ -38,7 +43,7 @@ export function Drawer({ open, onClose, children, maxHeight = '90%' }: DrawerPro
       }
     }
     prevOpen.current = open
-  }, [open])
+  }, [open, skipBodyLock])
 
   // Close on Escape key
   useEffect(() => {
@@ -60,7 +65,7 @@ export function Drawer({ open, onClose, children, maxHeight = '90%' }: DrawerPro
           position: 'fixed',
           inset: 0,
           background: 'rgba(12,26,40,.42)',
-          zIndex: 50,
+          zIndex: zLayer,
           opacity: open ? 1 : 0,
           pointerEvents: open ? 'auto' : 'none',
           transition: 'opacity .3s ease',
@@ -76,7 +81,7 @@ export function Drawer({ open, onClose, children, maxHeight = '90%' }: DrawerPro
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 51,
+          zIndex: zLayer + 1,
           background: '#fff',
           borderRadius: '26px 26px 0 0',
           maxHeight,

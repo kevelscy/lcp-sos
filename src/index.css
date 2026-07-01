@@ -149,6 +149,11 @@
   50%       { opacity: 1; }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
 /* Hide scrollbars on scrollable areas */
 .scrollarea::-webkit-scrollbar { width: 0; height: 0; }
 .scrollarea { scrollbar-width: none; }

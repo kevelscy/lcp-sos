@@ -44,19 +44,34 @@ export function SelectorDrawer({
 
   const stableFetch = useCallback((q: string) => fetchRef.current(q), [])
 
-  // Reset on open
+  // Fetch immediately on open, then debounce on query change
   const prevOpen = useRef(false)
+  const isInitialFetch = useRef(false)
+
   useEffect(() => {
     if (open && !prevOpen.current) {
+      // Just opened — reset and fetch immediately
       setQuery('')
       setRows([])
+      setLoading(true)
+      isInitialFetch.current = true
+      stableFetch('').then((result) => {
+        setRows(result)
+        setLoading(false)
+      }).catch(() => {
+        setRows([])
+        setLoading(false)
+      })
     }
     prevOpen.current = open
-  }, [open])
+  }, [open, stableFetch])
 
-  // Debounce fetch
+  // Debounce subsequent searches (skip initial, that's handled above)
   useEffect(() => {
-    if (!open) return
+    if (!open || isInitialFetch.current) {
+      isInitialFetch.current = false
+      return
+    }
     setLoading(true)
     const timer = setTimeout(async () => {
       try {
@@ -67,12 +82,12 @@ export function SelectorDrawer({
       } finally {
         setLoading(false)
       }
-    }, 250)
+    }, 300)
     return () => clearTimeout(timer)
-  }, [open, query, stableFetch])
+  }, [query, open, stableFetch])
 
   return (
-    <Drawer open={open} onClose={onBack} maxHeight="90%">
+    <Drawer open={open} onClose={onBack} maxHeight="90%" zLayer={60} skipBodyLock>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
         {/* Header */}
         <div style={{ flexShrink: 0, padding: '2px 22px 14px' }}>
@@ -167,8 +182,27 @@ export function SelectorDrawer({
         {/* Rows */}
         <div className="scrollarea" style={{ flex: 1, overflowY: 'auto', padding: '2px 22px 30px' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#9aa8b6', fontSize: 14, fontWeight: 500 }}>
-              Buscando…
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    background: '#f5f7fa',
+                    border: '1.5px solid #eef2f6',
+                    borderRadius: 14,
+                    padding: '13px 15px',
+                  }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: '#e9edf2', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ width: '60%', height: 14, borderRadius: 6, background: '#e9edf2', marginBottom: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                    <div style={{ width: '40%', height: 12, borderRadius: 6, background: '#eef2f6', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : rows.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '36px 20px', color: '#9aa8b6', fontWeight: 500 }}>
