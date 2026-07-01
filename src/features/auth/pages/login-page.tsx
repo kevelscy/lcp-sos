@@ -46,22 +46,23 @@ export function LoginPage() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 40 }}>
         <div
           style={{
-            width: 78,
-            height: 78,
+            width: 88,
+            height: 88,
             borderRadius: 24,
             background: 'linear-gradient(160deg, #1d6299 0%, #165382 60%, #103f66 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: 20,
+            padding: 14,
           }}
           aria-hidden="true"
         >
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3.5 8.5 12 4l8.5 4.5-8.5 4.5z"/>
-            <path d="M3.5 8.5v7L12 20l8.5-4.5v-7"/>
-            <path d="M12 13v7"/>
-          </svg>
+          <img
+            src="/logo.webp"
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
         </div>
         <div style={{ fontSize: 26, fontWeight: 800, color: '#0f2a40', letterSpacing: '-.5px' }}>
           Acopio

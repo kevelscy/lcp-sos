@@ -78,7 +78,7 @@ export function AppLayout() {
       <div style={{ position: 'relative', minHeight: '100dvh', background: '#f5f7fa', display: 'flex', flexDirection: 'column' }}>
 
         {/* ---- HEADER ---- */}
-        <header style={{ flexShrink: 0, padding: '6px 20px 14px', background: '#f5f7fa' }}>
+        <header style={{ flexShrink: 0, padding: '20px 20px 14px', background: '#f5f7fa' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             {/* Title group */}
             <div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Drawer } from '@/shared/components/drawer'
 
 export interface SelectorRow {
@@ -38,13 +38,29 @@ export function SelectorDrawer({
   const [rows, setRows] = useState<SelectorRow[]>([])
   const [loading, setLoading] = useState(false)
 
+  // Stable ref to fetchRows to avoid infinite re-fetches from inline arrow fns
+  const fetchRef = useRef(fetchRows)
+  fetchRef.current = fetchRows
+
+  const stableFetch = useCallback((q: string) => fetchRef.current(q), [])
+
+  // Reset on open
+  const prevOpen = useRef(false)
+  useEffect(() => {
+    if (open && !prevOpen.current) {
+      setQuery('')
+      setRows([])
+    }
+    prevOpen.current = open
+  }, [open])
+
   // Debounce fetch
   useEffect(() => {
     if (!open) return
     setLoading(true)
     const timer = setTimeout(async () => {
       try {
-        const result = await fetchRows(query)
+        const result = await stableFetch(query)
         setRows(result)
       } catch {
         setRows([])
@@ -53,15 +69,7 @@ export function SelectorDrawer({
       }
     }, 250)
     return () => clearTimeout(timer)
-  }, [open, query, fetchRows])
-
-  // Reset on open
-  useEffect(() => {
-    if (open) {
-      setQuery('')
-      setRows([])
-    }
-  }, [open])
+  }, [open, query, stableFetch])
 
   return (
     <Drawer open={open} onClose={onBack} maxHeight="90%">

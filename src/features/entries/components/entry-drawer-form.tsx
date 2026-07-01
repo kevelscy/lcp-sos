@@ -248,7 +248,7 @@ export function EntryDrawerForm({
         showScan={true}
         onBack={() => setSelectorOpen(null)}
         fetchRows={async (q) => {
-          const res = await itemsApi.getAll({ search: q, limit: 20 })
+          const res = await itemsApi.getAll({ name: q, limit: 20 })
           return res.data.map((item) => ({
             id: item.id,
             title: item.name,
@@ -273,7 +273,7 @@ export function EntryDrawerForm({
         placeholder="Buscar persona…"
         onBack={() => setSelectorOpen(null)}
         fetchRows={async (q) => {
-          const res = await personsApi.getAll({ search: q, limit: 20 })
+          const res = await personsApi.getAll({ names: q, limit: 20 })
           return res.data.map((p, i) => {
             const palettes = [['#eaf1f7','#2c6ea0'],['#e9f3ec','#2f9e6a'],['#f5edda','#b5851f'],['#f3e9f0','#9a4d84'],['#eae9f5','#5a52a0']]
             const [bg, color] = palettes[i % palettes.length]

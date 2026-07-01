@@ -47,12 +47,12 @@ export function createResourceApi<T, CreateDTO = Partial<T>, UpdateDTO = Partial
     },
 
     async update(id, payload) {
-      const { data } = await apiClient.patch<T>(`${basePath}/${id}`, payload)
+      const { data } = await apiClient.put<T>(`${basePath}/${id}`, payload)
       return data
     },
 
     async archive(id) {
-      await apiClient.post(`${basePath}/${id}/archivar`)
+      await apiClient.put(`${basePath}/${id}/archive`)
     },
   }
 }
