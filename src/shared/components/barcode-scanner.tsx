@@ -40,34 +40,30 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
     if (!ready || !open) return
 
     const el = document.getElementById(READER_ID)
-    if (!el) {
-      console.error('[BarcodeScanner] container not found')
-      return
-    }
-
-    console.log('[BarcodeScanner] container size:', el.offsetWidth, 'x', el.offsetHeight)
+    if (!el) return
 
     const scanner = new Html5Qrcode(READER_ID)
     scannerRef.current = scanner
+    let stopped = false
+
+    function safeStop() {
+      if (stopped) return
+      stopped = true
+      scannerRef.current = null
+      scanner.stop().then(() => scanner.clear()).catch(() => {})
+    }
 
     scanner
       .start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 },
-        },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
         (decodedText) => {
           console.log('[BarcodeScanner] ✅ detected:', decodedText)
-          scanner.stop().catch(() => {})
-          scannerRef.current = null
+          safeStop()
           onScan(decodedText)
         },
         () => {}
       )
-      .then(() => {
-        console.log('[BarcodeScanner] scanning active')
-      })
       .catch((err: unknown) => {
         console.error('[BarcodeScanner] start error:', err)
         const msg = String(err)
@@ -80,10 +76,7 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
         }
       })
 
-    return () => {
-      scanner.stop().then(() => scanner.clear()).catch(() => {})
-      scannerRef.current = null
-    }
+    return () => safeStop()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, open])
 
