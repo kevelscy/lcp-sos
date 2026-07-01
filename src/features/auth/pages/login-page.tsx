@@ -68,7 +68,7 @@ export function LoginPage() {
           Acopio
         </div>
         <div style={{ fontSize: 14.5, fontWeight: 500, color: '#65788a', marginTop: 5 }}>
-          Inventario de donaciones · Umía
+          Inventario de donaciones
         </div>
       </div>
 
@@ -83,7 +83,7 @@ export function LoginPage() {
           id="username"
           type="email"
           autoComplete="email"
-          placeholder="tucorreo@umiasalud.com"
+          placeholder="tucorreo@email.com"
           style={{
             width: '100%',
             background: '#fff',
