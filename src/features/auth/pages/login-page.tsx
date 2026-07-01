@@ -28,7 +28,7 @@ export function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { username: '', password: '' },
   })
 
   async function onSubmit(values: LoginFormValues) {
@@ -53,16 +53,16 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <FieldGroup>
-              <Field data-invalid={!!errors.email}>
-                <FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
+              <Field data-invalid={!!errors.username}>
+                <FieldLabel htmlFor="username">Correo electrónico</FieldLabel>
                 <Input
-                  id="email"
+                  id="username"
                   type="email"
                   autoComplete="email"
-                  aria-invalid={!!errors.email}
-                  {...register('email')}
+                  aria-invalid={!!errors.username}
+                  {...register('username')}
                 />
-                <FieldError errors={[errors.email]} />
+                <FieldError errors={[errors.username]} />
               </Field>
 
               <Field data-invalid={!!errors.password}>

@@ -42,9 +42,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   async login(credentials) {
-    const { accessToken, user } = await authApi.login(credentials)
-    persistAuth(accessToken, user)
-    set({ token: accessToken, user, isAuthenticated: true })
+    const response = await authApi.login(credentials)
+    const token = response.access_token
+    // The OAuth2 login endpoint doesn't return a user profile.
+    // Store the username (email) from the credentials as a minimal user.
+    const user: AuthUser = {
+      id: 0,
+      email: credentials.username,
+      name: credentials.username,
+    }
+    persistAuth(token, user)
+    set({ token, user, isAuthenticated: true })
   },
 
   logout() {

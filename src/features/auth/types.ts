@@ -1,6 +1,6 @@
 /** Credentials submitted on the login form. */
 export interface LoginCredentials {
-  email: string
+  username: string
   password: string
 }
 
@@ -11,8 +11,12 @@ export interface AuthUser {
   name: string
 }
 
-/** Response body of `POST /auth/login`. */
+/**
+ * Response body of `POST /auth/login`.
+ * FastAPI's OAuth2PasswordRequestForm returns snake_case tokens.
+ * Axios camelCase conversion is NOT applied because we send form-urlencoded.
+ */
 export interface LoginResponse {
-  accessToken: string
-  user: AuthUser
+  access_token: string
+  refresh_token: string
 }
