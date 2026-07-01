@@ -1,17 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser'
-import { BarcodeFormat, DecodeHintType } from '@zxing/library'
+import { Html5Qrcode } from 'html5-qrcode'
 
 import { Drawer } from '@/shared/components/drawer'
-
-/** Common 1D barcode formats used on donated-goods packaging. */
-const SCAN_FORMATS = [
-  BarcodeFormat.EAN_13,
-  BarcodeFormat.EAN_8,
-  BarcodeFormat.UPC_A,
-  BarcodeFormat.CODE_128,
-  BarcodeFormat.CODE_39,
-]
 
 type ErrorKind = 'permission' | 'no-camera' | 'generic' | 'insecure'
 
@@ -22,19 +12,20 @@ interface BarcodeScannerProps {
 }
 
 /**
- * Camera-based barcode scanner using our Drawer system (z-index 70)
- * so it renders above any stacked drawers.
- *
- * Uses `@zxing/browser` BrowserMultiFormatReader to continuously decode
- * frames from the device camera until a barcode is found.
+ * Camera-based barcode scanner using html5-qrcode for reliable 1D/2D
+ * detection. Renders inside our Drawer at zLayer=70 (above everything).
  */
 export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const controlsRef = useRef<IScannerControls | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const scannerRef = useRef<Html5Qrcode | null>(null)
   const [errorKind, setErrorKind] = useState<ErrorKind | null>(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      setReady(false)
+      return
+    }
 
     setErrorKind(null)
 
@@ -43,86 +34,76 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
       return
     }
 
-    const hints = new Map()
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, SCAN_FORMATS)
-    hints.set(DecodeHintType.TRY_HARDER, true)
-    const reader = new BrowserMultiFormatReader(hints)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(reader as any).timeBetweenDecodingAttempts = 200
+    // Wait for drawer animation so the container is in the DOM and visible
+    const delay = setTimeout(() => setReady(true), 450)
+    return () => clearTimeout(delay)
+  }, [open])
 
-    let cancelled = false
-    let frameCount = 0
+  // Start scanner once ready
+  useEffect(() => {
+    if (!ready || !open) return
 
-    async function start() {
-      // Wait for the drawer animation to finish so the video element is visible
-      await new Promise((r) => setTimeout(r, 400))
-      if (cancelled) return
+    const el = containerRef.current
+    if (!el) return
 
-      const videoEl = videoRef.current
-      if (!videoEl) {
-        console.error('[BarcodeScanner] video element not found after delay')
-        setErrorKind('generic')
-        return
-      }
+    // html5-qrcode needs a unique ID on the container
+    const id = el.id || 'barcode-reader'
+    el.id = id
 
-      console.log('[BarcodeScanner] starting camera scan…')
-      console.log('[BarcodeScanner] video dimensions:', videoEl.offsetWidth, 'x', videoEl.offsetHeight)
+    const scanner = new Html5Qrcode(id)
+    scannerRef.current = scanner
 
-      try {
-        const controls = await reader.decodeFromConstraints(
-          { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
-          videoEl,
-          (result, error, activeControls) => {
-            if (cancelled) return
-            frameCount++
-            if (frameCount % 50 === 1) {
-              console.log(`[BarcodeScanner] scanning frame #${frameCount}, video: ${videoEl.videoWidth}x${videoEl.videoHeight}`)
-            }
-            if (result) {
-              const code = result.getText()
-              console.log('[BarcodeScanner] ✅ detected:', code, 'format:', result.getBarcodeFormat())
-              activeControls.stop()
-              onScan(code)
-              return
-            }
-            if (error && error.name !== 'NotFoundException') {
-              console.warn('[BarcodeScanner] decode error:', error.name, error.message)
-            }
-          }
-        )
-
-        if (cancelled) {
-          controls.stop()
-          return
-        }
-        console.log('[BarcodeScanner] camera stream active, video:', videoEl.videoWidth, 'x', videoEl.videoHeight)
-        controlsRef.current = controls
-      } catch (err) {
-        if (cancelled) return
+    scanner
+      .start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 280, height: 120 },
+          aspectRatio: 1.7778,
+          disableFlip: false,
+        },
+        (decodedText) => {
+          console.log('[BarcodeScanner] ✅ detected:', decodedText)
+          scanner.stop().catch(() => {})
+          scannerRef.current = null
+          onScan(decodedText)
+        },
+        // Ignore errors — fires every frame without a barcode
+        () => {}
+      )
+      .catch((err: unknown) => {
         console.error('[BarcodeScanner] start error:', err)
-        const name = (err as { name?: string } | undefined)?.name
-        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        const msg = String(err)
+        if (msg.includes('NotAllowedError') || msg.includes('Permission')) {
           setErrorKind('permission')
-        } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        } else if (msg.includes('NotFoundError') || msg.includes('Devices')) {
           setErrorKind('no-camera')
         } else {
           setErrorKind('generic')
         }
-      }
-    }
-
-    start()
+      })
 
     return () => {
-      cancelled = true
-      controlsRef.current?.stop()
-      controlsRef.current = null
+      scanner
+        .stop()
+        .then(() => scanner.clear())
+        .catch(() => {})
+      scannerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  }, [ready, open])
+
+  // Clean up on close
+  function handleClose() {
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(() => {})
+      scannerRef.current = null
+    }
+    onClose()
+  }
 
   return (
-    <Drawer open={open} onClose={onClose} zLayer={70} skipBodyLock>
+    <Drawer open={open} onClose={handleClose} zLayer={70} skipBodyLock>
       <div style={{ padding: '6px 22px 34px' }}>
         <div style={{ fontSize: 20, fontWeight: 800, color: '#0f2a40', textAlign: 'center', margin: '2px 0 4px' }}>
           Escaneando…
@@ -135,7 +116,7 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
         <div style={{
           position: 'relative',
           width: '100%',
-          height: 260,
+          minHeight: 260,
           borderRadius: 22,
           background: '#12212e',
           overflow: 'hidden',
@@ -144,59 +125,46 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
             <ErrorState kind={errorKind} />
           ) : (
             <>
-              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <video
-                ref={videoRef}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                muted
-                playsInline
+              <div
+                ref={containerRef}
+                id="barcode-reader"
+                style={{ width: '100%', minHeight: 260 }}
               />
 
-              {/* Viewfinder overlay */}
-              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
-                {/* Border frame */}
-                <div style={{
-                  position: 'absolute',
-                  left: '8%',
-                  right: '8%',
-                  top: '10%',
-                  bottom: '10%',
-                  border: '2px solid rgba(255,255,255,.25)',
-                  borderRadius: 16,
-                }} />
+              {/* Scan line overlay (on top of the video) */}
+              {ready && (
+                <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} aria-hidden="true">
+                  <div style={{
+                    position: 'absolute',
+                    left: '8%',
+                    right: '8%',
+                    height: 2.5,
+                    background: 'linear-gradient(90deg, transparent, #4fd39a, transparent)',
+                    boxShadow: '0 0 14px #4fd39a',
+                    animation: 'scanline 1.7s ease-in-out infinite',
+                  }} />
 
-                {/* Scan line */}
-                <div style={{
-                  position: 'absolute',
-                  left: '8%',
-                  right: '8%',
-                  height: 2.5,
-                  background: 'linear-gradient(90deg, transparent, #4fd39a, transparent)',
-                  boxShadow: '0 0 14px #4fd39a',
-                  animation: 'scanline 1.7s ease-in-out infinite',
-                }} />
-
-                {/* Pulsing dots */}
-                <div style={{
-                  position: 'absolute',
-                  left: '50%',
-                  bottom: 16,
-                  transform: 'translateX(-50%)',
-                  display: 'flex',
-                  gap: 6,
-                }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite' }} />
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .2s' }} />
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .4s' }} />
+                  <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    bottom: 16,
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: 6,
+                  }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite' }} />
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .2s' }} />
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fd39a', animation: 'pulseDot 1s infinite .4s' }} />
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>
 
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           style={{
             marginTop: 20,
             width: '100%',
@@ -218,7 +186,6 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
   )
 }
 
-/** Inline error state rendered inside the camera viewport. */
 function ErrorState({ kind }: { kind: ErrorKind }) {
   const config: Record<ErrorKind, { icon: string; title: string; description: string }> = {
     permission: {
@@ -251,7 +218,7 @@ function ErrorState({ kind }: { kind: ErrorKind }) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      height: '100%',
+      height: 260,
       gap: 12,
       padding: 24,
       textAlign: 'center',
