@@ -87,7 +87,7 @@ export function SelectorDrawer({
       } finally {
         setLoading(false)
       }
-    }, 300)
+    }, 1500)
     return () => clearTimeout(timer)
   }, [query, open, stableFetch])
 

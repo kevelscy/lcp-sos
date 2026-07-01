@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /** Returns a debounced copy of `value`, updated `delayMs` after the last change. */
-export function useDebounce<T>(value: T, delayMs = 300): T {
+export function useDebounce<T>(value: T, delayMs = 1500): T {
   const [debounced, setDebounced] = useState(value)
 
   useEffect(() => {
