@@ -55,12 +55,7 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
 
     scanner
       .start(
-        {
-          facingMode: 'environment',
-          // Higher resolution = sharper barcode lines = faster detection
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          advanced: [{ zoom: 1.5 }] as any,
-        },
+        { facingMode: 'environment' },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {
           fps: 30,
