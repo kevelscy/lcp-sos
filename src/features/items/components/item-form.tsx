@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ScanBarcode } from 'lucide-react'
+import { Loader2, ScanBarcode } from 'lucide-react'
 
 import { BarcodeScanner } from '@/shared/components/barcode-scanner'
 import { FormField } from '@/shared/components/form-field'
@@ -50,71 +50,94 @@ export function ItemForm({
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <FieldGroup>
-          <FormField
-            control={control}
-            name="name"
-            label="Nombre del artículo"
-            placeholder="Nombre del artículo"
-          />
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+        {/* Item info section */}
+        <section aria-labelledby="section-item-info">
+          <h2
+            id="section-item-info"
+            className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Información del artículo
+          </h2>
+          <FieldGroup>
+            <FormField
+              control={control}
+              name="name"
+              label="Nombre del artículo"
+              placeholder="Nombre del artículo"
+              required
+            />
 
-          <Controller
-            control={control}
-            name="barcode"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={!!fieldState.error}>
-                <FieldLabel htmlFor="barcode">Código de barras</FieldLabel>
-                <div className="flex gap-2">
+            <Controller
+              control={control}
+              name="barcode"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={!!fieldState.error}>
+                  <FieldLabel htmlFor="barcode">Código de barras</FieldLabel>
+                  {/* Scan button — prominent, full-width, above the manual input */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 w-full gap-2 border-dashed text-base font-medium"
+                    onClick={() => setScannerOpen(true)}
+                    aria-label="Escanear código de barras con la cámara"
+                  >
+                    <ScanBarcode className="size-5" aria-hidden="true" />
+                    Escanear código de barras
+                  </Button>
                   <Input
                     id="barcode"
-                    placeholder="Código de barras"
+                    placeholder="O ingresá el código manualmente"
+                    aria-invalid={!!fieldState.error}
+                    className="font-mono"
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                  />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="unit"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={!!fieldState.error}>
+                  <FieldLabel htmlFor="unit">Unidad de medida</FieldLabel>
+                  <Input
+                    id="unit"
+                    list="unit-suggestions"
+                    placeholder="Kilogramos (kg), Unidades, Litros (L)..."
                     aria-invalid={!!fieldState.error}
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     ref={field.ref}
                   />
-                  <Button type="button" variant="outline" onClick={() => setScannerOpen(true)}>
-                    <ScanBarcode />
-                    Escanear
-                  </Button>
-                </div>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
+                  <datalist id="unit-suggestions">
+                    {UNIT_SUGGESTIONS.map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </section>
 
-          <Controller
-            control={control}
-            name="unit"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={!!fieldState.error}>
-                <FieldLabel htmlFor="unit">Unidad de medida</FieldLabel>
-                <Input
-                  id="unit"
-                  list="unit-suggestions"
-                  placeholder="Kilogramos (kg), Unidades, Litros (L)..."
-                  aria-invalid={!!fieldState.error}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  ref={field.ref}
-                />
-                <datalist id="unit-suggestions">
-                  {UNIT_SUGGESTIONS.map((option) => (
-                    <option key={option} value={option} />
-                  ))}
-                </datalist>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Guardando…' : submitLabel}
-          </Button>
-        </FieldGroup>
+        <Button type="submit" disabled={submitting} className="w-full" size="lg">
+          {submitting ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Guardando…
+            </>
+          ) : (
+            submitLabel
+          )}
+        </Button>
       </form>
 
       <BarcodeScanner

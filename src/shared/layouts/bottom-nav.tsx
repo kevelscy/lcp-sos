@@ -28,7 +28,8 @@ const NAV_ITEMS: BottomNavItem[] = [
 export function BottomNav() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 shadow-[0_-1px_3px_rgb(0_0_0/0.06)] backdrop-blur-sm"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       aria-label="Navegación principal"
     >
       <ul className="grid grid-cols-5">
@@ -38,13 +39,33 @@ export function BottomNav() {
               to={to}
               className={({ isActive }) =>
                 cn(
-                  'flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium text-muted-foreground transition-colors',
-                  isActive && 'text-primary'
+                  'relative flex min-h-[48px] flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium transition-colors',
+                  isActive
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 )
               }
             >
-              <Icon className="size-5" />
-              <span>{label}</span>
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={cn(
+                      'flex items-center justify-center rounded-full px-3 py-1 transition-all duration-200',
+                      isActive && 'bg-primary/10'
+                    )}
+                  >
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <span>{label}</span>
+                  {/* Active indicator dot */}
+                  {isActive && (
+                    <span
+                      className="absolute top-1 size-1 rounded-full bg-primary"
+                      aria-hidden="true"
+                    />
+                  )}
+                </>
+              )}
             </NavLink>
           </li>
         ))}

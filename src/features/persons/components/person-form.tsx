@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 
 import { FormField } from '@/shared/components/form-field'
 import { Button } from '@/shared/components/ui/button'
@@ -39,31 +40,83 @@ export function PersonForm({
   })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-      <FieldGroup>
-        <FormField control={control} name="names" label="Nombres" placeholder="Nombres" />
-        <FormField control={control} name="surnames" label="Apellidos" placeholder="Apellidos" />
-        <FormField control={control} name="dni" label="DNI" placeholder="V12345678" />
-        <FormField control={control} name="phone" label="Teléfono" placeholder="4141234567" />
-        <FormField
-          control={control}
-          name="address"
-          label="Dirección"
-          variant="textarea"
-          placeholder="Dirección"
-        />
-        <FormField
-          control={control}
-          name="notes"
-          label="Notas"
-          variant="textarea"
-          placeholder="Notas adicionales"
-        />
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+      {/* Personal data section */}
+      <section aria-labelledby="section-personal">
+        <h2
+          id="section-personal"
+          className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Datos personales
+        </h2>
+        <FieldGroup>
+          <FormField
+            control={control}
+            name="names"
+            label="Nombres"
+            placeholder="Nombres"
+            required
+          />
+          <FormField
+            control={control}
+            name="surnames"
+            label="Apellidos"
+            placeholder="Apellidos"
+            required
+          />
+          <FormField control={control} name="dni" label="DNI" placeholder="V12345678" />
+        </FieldGroup>
+      </section>
 
-        <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? 'Guardando…' : submitLabel}
-        </Button>
-      </FieldGroup>
+      {/* Contact section */}
+      <section aria-labelledby="section-contact">
+        <h2
+          id="section-contact"
+          className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Contacto
+        </h2>
+        <FieldGroup>
+          <FormField control={control} name="phone" label="Teléfono" placeholder="4141234567" />
+          <FormField
+            control={control}
+            name="address"
+            label="Dirección"
+            variant="textarea"
+            placeholder="Dirección"
+          />
+        </FieldGroup>
+      </section>
+
+      {/* Notes section */}
+      <section aria-labelledby="section-notes">
+        <h2
+          id="section-notes"
+          className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Notas
+        </h2>
+        <FieldGroup>
+          <FormField
+            control={control}
+            name="notes"
+            label="Notas adicionales"
+            variant="textarea"
+            placeholder="Notas adicionales"
+          />
+        </FieldGroup>
+      </section>
+
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
+        {submitting ? (
+          <>
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Guardando…
+          </>
+        ) : (
+          submitLabel
+        )}
+      </Button>
     </form>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Archive, MoreVertical, Users } from 'lucide-react'
+import { Archive, ChevronRight, MoreVertical, Phone, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -57,28 +57,31 @@ export function PersonsListPage() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Personas"
+        title={totalCount > 0 && !loading ? `Personas (${totalCount})` : 'Personas'}
         actionLabel="Nueva persona"
         onAction={() => navigate('/persons/new')}
       />
 
-      <div className="flex flex-col gap-2">
-        <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nombre..." />
+      {/* Toolbar */}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex-1">
+          <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nombre..." />
+        </div>
         <Input
           value={dniFilter}
           onChange={(event) => setDniFilter(event.target.value)}
           placeholder="Filtrar por DNI"
           aria-label="Filtrar por DNI"
-          className="max-w-48"
+          className="h-11 sm:max-w-44"
         />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 w-full" />
+            <Skeleton key={index} className="h-[72px] w-full rounded-xl" />
           ))}
         </div>
       ) : data.length === 0 ? (
@@ -89,42 +92,61 @@ export function PersonsListPage() {
           onAction={() => navigate('/persons/new')}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {data.map((person) => (
             <Card
               key={person.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer motion-safe:transition-shadow motion-safe:hover:shadow-md"
               onClick={() => navigate(`/persons/${person.id}/edit`)}
             >
-              <CardContent className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">
+              <CardContent className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  {/* Primary: full name */}
+                  <p className="truncate text-base font-semibold leading-tight text-foreground">
                     {person.names} {person.surnames}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                    {person.dni && <Badge variant="outline">{person.dni}</Badge>}
-                    {person.phone && <span>{person.phone}</span>}
+
+                  {/* Secondary: DNI + phone */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {person.dni && (
+                      <Badge
+                        variant="secondary"
+                        className="rounded-md px-1.5 py-0 font-mono text-xs"
+                      >
+                        {person.dni}
+                      </Badge>
+                    )}
+                    {person.phone && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Phone className="size-3 shrink-0" aria-hidden="true" />
+                        {person.phone}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div onClick={(event) => event.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}
-                      aria-label="Más acciones"
-                    >
-                      <MoreVertical className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setPersonToArchive(person)}
+                <div className="flex shrink-0 items-center gap-1">
+                  <ChevronRight className="size-4 text-muted-foreground/50" aria-hidden="true" />
+
+                  <div onClick={(event) => event.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}
+                        aria-label="Más acciones"
                       >
-                        <Archive />
-                        Archivar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <MoreVertical className="size-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => setPersonToArchive(person)}
+                        >
+                          <Archive />
+                          Archivar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </CardContent>
             </Card>

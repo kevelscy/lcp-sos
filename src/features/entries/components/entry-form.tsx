@@ -1,5 +1,6 @@
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
 
 import { FormField } from '@/shared/components/form-field'
 import { SearchableSelect } from '@/shared/components/searchable-select'
@@ -68,70 +69,101 @@ export function EntryForm({
   })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-      <FieldGroup>
-        {mode === 'create' ? (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+      {/* Article section — primary action, visually prominent */}
+      <section aria-labelledby="section-entry-item">
+        <h2
+          id="section-entry-item"
+          className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Artículo
+        </h2>
+        <FieldGroup>
+          {mode === 'create' ? (
+            <Controller
+              control={control}
+              name="itemId"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={!!fieldState.error}>
+                  <FieldLabel htmlFor="itemId">
+                    Artículo
+                    <span className="ml-0.5 text-destructive" aria-hidden="true">*</span>
+                  </FieldLabel>
+                  <SearchableSelect
+                    value={field.value}
+                    onChange={(option) => field.onChange(option?.id ?? null)}
+                    fetchOptions={fetchItemOptions}
+                    placeholder="Buscar artículo por nombre..."
+                    ariaInvalid={!!fieldState.error}
+                  />
+                  <FieldError errors={[fieldState.error]} />
+                </Field>
+              )}
+            />
+          ) : (
+            <Field>
+              <FieldLabel>Artículo</FieldLabel>
+              <p className="rounded-lg border border-input bg-muted/50 px-2.5 py-1.5 text-sm">
+                {item?.name ?? '—'}
+              </p>
+            </Field>
+          )}
+        </FieldGroup>
+      </section>
+
+      {/* Detail section */}
+      <section aria-labelledby="section-entry-detail">
+        <h2
+          id="section-entry-detail"
+          className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          Detalle
+        </h2>
+        <FieldGroup>
+          <FormField
+            control={control}
+            name="quantity"
+            label="Cantidad"
+            variant="number"
+            placeholder="0"
+            required
+          />
+
           <Controller
             control={control}
-            name="itemId"
+            name="donorId"
             render={({ field, fieldState }) => (
               <Field data-invalid={!!fieldState.error}>
-                <FieldLabel htmlFor="itemId">Artículo</FieldLabel>
+                <FieldLabel htmlFor="donorId">Donante</FieldLabel>
                 <SearchableSelect
                   value={field.value}
+                  defaultLabel={
+                    initialDonor ? `${initialDonor.names} ${initialDonor.surnames}` : null
+                  }
                   onChange={(option) => field.onChange(option?.id ?? null)}
-                  fetchOptions={fetchItemOptions}
-                  placeholder="Buscar artículo por nombre..."
+                  fetchOptions={fetchDonorOptions}
+                  placeholder="Buscar donante por nombre..."
                   ariaInvalid={!!fieldState.error}
                 />
                 <FieldError errors={[fieldState.error]} />
               </Field>
             )}
           />
+
+          <FormField control={control} name="notes" label="Notas" variant="textarea" />
+        </FieldGroup>
+      </section>
+
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
+        {submitting ? (
+          <>
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Guardando…
+          </>
         ) : (
-          <Field>
-            <FieldLabel>Artículo</FieldLabel>
-            <p className="rounded-lg border border-input bg-muted/50 px-2.5 py-1.5 text-sm">
-              {item?.name ?? '—'}
-            </p>
-          </Field>
+          submitLabel
         )}
-
-        <FormField
-          control={control}
-          name="quantity"
-          label="Cantidad"
-          variant="number"
-          placeholder="0"
-        />
-
-        <Controller
-          control={control}
-          name="donorId"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={!!fieldState.error}>
-              <FieldLabel htmlFor="donorId">Donante</FieldLabel>
-              <SearchableSelect
-                value={field.value}
-                defaultLabel={
-                  initialDonor ? `${initialDonor.names} ${initialDonor.surnames}` : null
-                }
-                onChange={(option) => field.onChange(option?.id ?? null)}
-                fetchOptions={fetchDonorOptions}
-                placeholder="Buscar donante por nombre..."
-                ariaInvalid={!!fieldState.error}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-
-        <FormField control={control} name="notes" label="Notas" variant="textarea" />
-
-        <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? 'Guardando…' : submitLabel}
-        </Button>
-      </FieldGroup>
+      </Button>
     </form>
   )
 }

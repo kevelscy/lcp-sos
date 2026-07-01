@@ -31,8 +31,8 @@ export function PageHeader({
   }
 
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-1.5">
+    <div className="mb-4 flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-1">
         {showBack && (
           <Button
             type="button"
@@ -40,15 +40,23 @@ export function PageHeader({
             size="icon-sm"
             onClick={handleBack}
             aria-label="Volver"
+            className="-ml-1.5 shrink-0 text-muted-foreground hover:text-foreground"
           >
-            <ChevronLeft />
+            <ChevronLeft aria-hidden="true" />
           </Button>
         )}
-        <h1 className="truncate text-lg font-semibold">{title}</h1>
+        <h1 className="truncate text-lg font-semibold leading-tight text-foreground" style={{ textWrap: 'balance' }}>
+          {title}
+        </h1>
       </div>
 
       {actionLabel && onAction && (
-        <Button type="button" onClick={onAction} size="sm">
+        <Button
+          type="button"
+          onClick={onAction}
+          size="sm"
+          className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
           {actionLabel}
         </Button>
       )}

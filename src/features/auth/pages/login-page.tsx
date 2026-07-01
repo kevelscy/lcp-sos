@@ -44,46 +44,77 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">LCP Inventario</CardTitle>
-          <CardDescription>Inicia sesión para continuar</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <FieldGroup>
-              <Field data-invalid={!!errors.username}>
-                <FieldLabel htmlFor="username">Correo electrónico</FieldLabel>
-                <Input
-                  id="username"
-                  type="email"
-                  autoComplete="email"
-                  aria-invalid={!!errors.username}
-                  {...register('username')}
-                />
-                <FieldError errors={[errors.username]} />
-              </Field>
+    <main className="flex min-h-svh items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4">
+      <div
+        className="w-full max-w-sm motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-500 motion-safe:ease-out"
+      >
+        <Card className="overflow-hidden shadow-lg">
+          {/* Brand accent strip at top */}
+          <div className="h-1.5 w-full bg-primary" aria-hidden="true" />
 
-              <Field data-invalid={!!errors.password}>
-                <FieldLabel htmlFor="password">Contraseña</FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  aria-invalid={!!errors.password}
-                  {...register('password')}
-                />
-                <FieldError errors={[errors.password]} />
-              </Field>
+          <CardHeader className="pb-4 pt-6 text-center">
+            <div className="mb-3 flex justify-center">
+              {/* Logo mark */}
+              <div
+                className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20"
+                aria-hidden="true"
+              >
+                <span className="text-xl font-bold text-primary">L</span>
+              </div>
+            </div>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+              LCP Inventario
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              Inicia sesión para continuar
+            </CardDescription>
+          </CardHeader>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
-              </Button>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
+          <CardContent className="pb-6">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <FieldGroup>
+                <Field data-invalid={!!errors.username}>
+                  <FieldLabel htmlFor="username">Correo electrónico</FieldLabel>
+                  <Input
+                    id="username"
+                    type="email"
+                    autoComplete="email"
+                    aria-required="true"
+                    aria-invalid={!!errors.username}
+                    aria-describedby={errors.username ? 'username-error' : undefined}
+                    className="h-11"
+                    {...register('username')}
+                  />
+                  <FieldError id="username-error" errors={[errors.username]} />
+                </Field>
+
+                <Field data-invalid={!!errors.password}>
+                  <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+                  <Input
+                    id="password"
+                    type="password"
+                    autoComplete="current-password"
+                    aria-required="true"
+                    aria-invalid={!!errors.password}
+                    aria-describedby={errors.password ? 'password-error' : undefined}
+                    className="h-11"
+                    {...register('password')}
+                  />
+                  <FieldError id="password-error" errors={[errors.password]} />
+                </Field>
+
+                <Button
+                  type="submit"
+                  className="h-11 w-full text-sm font-semibold"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}
+                </Button>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </main>
   )
 }

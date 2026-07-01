@@ -91,6 +91,7 @@ export function EntriesListPage() {
         onAction={() => navigate('/entries/new')}
       />
 
+      {/* Toolbar */}
       <div className="flex flex-col gap-2">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar entradas..." />
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -114,9 +115,9 @@ export function EntriesListPage() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 w-full" />
+            <Skeleton key={index} className="h-[84px] w-full rounded-xl" />
           ))}
         </div>
       ) : data.length === 0 ? (
@@ -127,25 +128,41 @@ export function EntriesListPage() {
           onAction={() => navigate('/entries/new')}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {data.map((entry) => (
             <Card
               key={entry.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer motion-safe:transition-shadow motion-safe:hover:shadow-md"
               onClick={() => navigate(`/entries/${entry.id}/edit`)}
             >
-              <CardContent className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{entry.item.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {entry.quantity} {entry.item.unit ?? ''}
+              <CardContent className="flex items-start justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  {/* Primary: item name */}
+                  <p className="truncate font-semibold leading-tight text-foreground">
+                    {entry.item.name}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                    <Badge variant="outline">
-                      {entry.donor ? `${entry.donor.names} ${entry.donor.surnames}` : 'Sin donante'}
+
+                  {/* Quantity — secondary but clear */}
+                  <p className="mt-0.5 text-sm font-medium text-foreground/80">
+                    {entry.quantity}
+                    {entry.item.unit ? ` ${entry.item.unit}` : ''}
+                  </p>
+
+                  {/* Donor + date */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <Badge
+                      variant={entry.donor ? 'secondary' : 'outline'}
+                      className="rounded-md px-1.5 py-0 text-xs"
+                    >
+                      {entry.donor
+                        ? `${entry.donor.names} ${entry.donor.surnames}`
+                        : 'Sin donante'}
                     </Badge>
-                    <span>{formatDate(entry.createdAt)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(entry.createdAt)}
+                    </span>
                   </div>
+
                   {entry.notes && (
                     <p className="mt-1 truncate text-xs text-muted-foreground">{entry.notes}</p>
                   )}

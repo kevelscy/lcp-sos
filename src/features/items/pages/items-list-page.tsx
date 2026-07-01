@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Archive, MoreVertical, Package } from 'lucide-react'
+import { Archive, ChevronRight, MoreVertical, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -57,28 +57,31 @@ export function ItemsListPage() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Artículos"
+        title={totalCount > 0 && !loading ? `Artículos (${totalCount})` : 'Artículos'}
         actionLabel="Nuevo artículo"
         onAction={() => navigate('/items/new')}
       />
 
-      <div className="flex flex-col gap-2">
-        <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nombre..." />
+      {/* Toolbar */}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex-1">
+          <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nombre..." />
+        </div>
         <Input
           value={barcodeFilter}
           onChange={(event) => setBarcodeFilter(event.target.value)}
           placeholder="Filtrar por código de barras"
           aria-label="Filtrar por código de barras"
-          className="max-w-56"
+          className="h-11 font-mono sm:max-w-52"
         />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 w-full" />
+            <Skeleton key={index} className="h-[72px] w-full rounded-xl" />
           ))}
         </div>
       ) : data.length === 0 ? (
@@ -89,40 +92,63 @@ export function ItemsListPage() {
           onAction={() => navigate('/items/new')}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {data.map((item) => (
             <Card
               key={item.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer motion-safe:transition-shadow motion-safe:hover:shadow-md"
               onClick={() => navigate(`/items/${item.id}/edit`)}
             >
-              <CardContent className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{item.name}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                    {item.barcode && <Badge variant="outline">{item.barcode}</Badge>}
-                    {item.unit && <span>{item.unit}</span>}
+              <CardContent className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  {/* Primary: item name */}
+                  <p className="truncate text-base font-semibold leading-tight text-foreground">
+                    {item.name}
+                  </p>
+
+                  {/* Secondary: barcode (monospace) + unit tag */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {item.barcode && (
+                      <Badge
+                        variant="outline"
+                        className="rounded-md px-1.5 py-0 font-mono text-xs"
+                      >
+                        {item.barcode}
+                      </Badge>
+                    )}
+                    {item.unit && (
+                      <Badge
+                        variant="secondary"
+                        className="rounded-md px-1.5 py-0 text-xs"
+                      >
+                        {item.unit}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
-                <div onClick={(event) => event.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}
-                      aria-label="Más acciones"
-                    >
-                      <MoreVertical className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setItemToArchive(item)}
+                <div className="flex shrink-0 items-center gap-1">
+                  <ChevronRight className="size-4 text-muted-foreground/50" aria-hidden="true" />
+
+                  <div onClick={(event) => event.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }))}
+                        aria-label="Más acciones"
                       >
-                        <Archive />
-                        Archivar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <MoreVertical className="size-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => setItemToArchive(item)}
+                        >
+                          <Archive />
+                          Archivar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </CardContent>
             </Card>

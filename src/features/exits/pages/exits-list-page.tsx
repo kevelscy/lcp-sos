@@ -91,6 +91,7 @@ export function ExitsListPage() {
         onAction={() => navigate('/exits/new')}
       />
 
+      {/* Toolbar */}
       <div className="flex flex-col gap-2">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar salidas..." />
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -114,9 +115,9 @@ export function ExitsListPage() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 w-full" />
+            <Skeleton key={index} className="h-[84px] w-full rounded-xl" />
           ))}
         </div>
       ) : data.length === 0 ? (
@@ -127,27 +128,41 @@ export function ExitsListPage() {
           onAction={() => navigate('/exits/new')}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {data.map((exit) => (
             <Card
               key={exit.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer motion-safe:transition-shadow motion-safe:hover:shadow-md"
               onClick={() => navigate(`/exits/${exit.id}/edit`)}
             >
-              <CardContent className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{exit.item.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {exit.quantity} {exit.item.unit ?? ''}
+              <CardContent className="flex items-start justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  {/* Primary: item name */}
+                  <p className="truncate font-semibold leading-tight text-foreground">
+                    {exit.item.name}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                    <Badge variant="outline">
+
+                  {/* Quantity — secondary but clear */}
+                  <p className="mt-0.5 text-sm font-medium text-foreground/80">
+                    {exit.quantity}
+                    {exit.item.unit ? ` ${exit.item.unit}` : ''}
+                  </p>
+
+                  {/* Recipient + date */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <Badge
+                      variant={exit.recipient ? 'secondary' : 'outline'}
+                      className="rounded-md px-1.5 py-0 text-xs"
+                    >
                       {exit.recipient
                         ? `${exit.recipient.names} ${exit.recipient.surnames}`
                         : 'Sin beneficiario'}
                     </Badge>
-                    <span>{formatDate(exit.createdAt)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(exit.createdAt)}
+                    </span>
                   </div>
+
                   {exit.notes && (
                     <p className="mt-1 truncate text-xs text-muted-foreground">{exit.notes}</p>
                   )}
