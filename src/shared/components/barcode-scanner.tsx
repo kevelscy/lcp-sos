@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { BarcodeFormat, BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser'
+import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser'
+import { BarcodeFormat, DecodeHintType } from '@zxing/library'
 
 import { Drawer } from '@/shared/components/drawer'
 
@@ -42,20 +43,43 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
       return
     }
 
-    const reader = new BrowserMultiFormatReader()
-    reader.possibleFormats = SCAN_FORMATS
+    const hints = new Map()
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, SCAN_FORMATS)
+    hints.set(DecodeHintType.TRY_HARDER, true)
+    const reader = new BrowserMultiFormatReader(hints)
 
     let cancelled = false
 
     async function start() {
+      // Wait a tick for the video element to be in the DOM (drawer animates in)
+      await new Promise((r) => setTimeout(r, 350))
+      if (cancelled) return
+
+      const videoEl = videoRef.current
+      if (!videoEl) {
+        console.error('[BarcodeScanner] video element not found after delay')
+        setErrorKind('generic')
+        return
+      }
+
+      console.log('[BarcodeScanner] starting camera scan…')
+
       try {
         const controls = await reader.decodeFromConstraints(
           { video: { facingMode: 'environment' } },
-          videoRef.current ?? undefined,
-          (result, _error, activeControls) => {
-            if (cancelled || !result) return
-            activeControls.stop()
-            onScan(result.getText())
+          videoEl,
+          (result, error, activeControls) => {
+            if (cancelled) return
+            if (result) {
+              const code = result.getText()
+              console.log('[BarcodeScanner] detected:', code)
+              activeControls.stop()
+              onScan(code)
+            }
+            // error is normal — it fires every frame that has no barcode
+            if (error && error.name !== 'NotFoundException') {
+              console.warn('[BarcodeScanner] decode error:', error.name, error.message)
+            }
           }
         )
 
@@ -63,9 +87,11 @@ export function BarcodeScanner({ open, onScan, onClose }: BarcodeScannerProps) {
           controls.stop()
           return
         }
+        console.log('[BarcodeScanner] camera stream active')
         controlsRef.current = controls
       } catch (err) {
         if (cancelled) return
+        console.error('[BarcodeScanner] start error:', err)
         const name = (err as { name?: string } | undefined)?.name
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setErrorKind('permission')
